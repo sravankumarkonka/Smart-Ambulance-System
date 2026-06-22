@@ -1,0 +1,11 @@
+{
+  "name": "smart-ambulance-selenium-tests",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "E2E Selenium tests for Smart Ambulance System",
+  "main": "testRunner300.js",
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "selenium-webdriver": "^4.20.0"
+  }
+}
