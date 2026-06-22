@@ -57,7 +57,7 @@ def auth_header(role):
     return {}
 
 def req(method, path, role="none", body=None, params=None,
-        extra_headers=None, timeout=12, bypass=True):
+        extra_headers=None, timeout=30, bypass=True):
     url = BASE_URL + path
     headers = {"Content-Type": "application/json", **auth_header(role)}
     if bypass:

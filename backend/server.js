@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import helmet from 'helmet';
 
 // Load environmental variables from root .env file
 const __filename = fileURLToPath(import.meta.url);
@@ -26,6 +27,9 @@ if (process.env.NODE_ENV === 'production' && !process.env.FIREBASE_SERVICE_ACCOU
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Enable Helmet for security headers
+app.use(helmet());
 
 // Enable CORS and parsing requests
 const allowedOrigins = process.env.ALLOWED_ORIGINS
