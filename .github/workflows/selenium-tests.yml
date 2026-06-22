@@ -49,7 +49,8 @@ jobs:
           FIREBASE_STORAGE_BUCKET="smart-ambulance-system-599d2.firebasestorage.app"
           FIREBASE_MESSAGING_SENDER_ID="686610895218"
           FIREBASE_APP_ID="1:686610895218:web:667b86b0d2074d0398cdeb"
-          SKIP_RATE_LIMIT=true
+          SKIP_RATE_LIMIT=false
+
           EOF
           cp .env backend/.env
 

@@ -1,0 +1,5146 @@
+[
+  {
+    "endpoint": "/api/auth/profile/mock-uid-70617469656e745f746",
+    "method": "GET",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 15,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:47.309848Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/mock-uid-70617469656e745f746",
+    "method": "GET",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 14,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:47.405072Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/mock-uid-70617469656e745f746",
+    "method": "GET",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:47.490455Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/mock-uid-70617469656e745f746",
+    "method": "POST",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 15,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:47.587160Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/mock-uid-70617469656e745f746",
+    "method": "POST",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 22,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:47.691327Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/mock-uid-70617469656e745f746",
+    "method": "POST",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 22,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:47.796419Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 2,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:47.878876Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:47.966037Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 25,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:48.072448Z"
+  },
+  {
+    "endpoint": "/api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID",
+    "method": "GET",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 2,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:48.155314Z"
+  },
+  {
+    "endpoint": "/api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID",
+    "method": "GET",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 16,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:48.254165Z"
+  },
+  {
+    "endpoint": "/api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID",
+    "method": "GET",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:48.335776Z"
+  },
+  {
+    "endpoint": "/api/emergencies/history/mock-uid-70617469656e745f746",
+    "method": "GET",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 17,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:48.436973Z"
+  },
+  {
+    "endpoint": "/api/emergencies/history/mock-uid-70617469656e745f746",
+    "method": "GET",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 22,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:48.541086Z"
+  },
+  {
+    "endpoint": "/api/emergencies/history/mock-uid-70617469656e745f746",
+    "method": "GET",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 23,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:48.646262Z"
+  },
+  {
+    "endpoint": "/api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/image",
+    "method": "POST",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 13,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:48.740134Z"
+  },
+  {
+    "endpoint": "/api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/image",
+    "method": "POST",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 23,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:48.845299Z"
+  },
+  {
+    "endpoint": "/api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/image",
+    "method": "POST",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 14,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:48.940231Z"
+  },
+  {
+    "endpoint": "/api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/cancel",
+    "method": "POST",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 21,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:49.042981Z"
+  },
+  {
+    "endpoint": "/api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/cancel",
+    "method": "POST",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:49.124277Z"
+  },
+  {
+    "endpoint": "/api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/cancel",
+    "method": "POST",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:49.212781Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/assign",
+    "method": "POST",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 18,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:49.313870Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/assign",
+    "method": "POST",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 13,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:49.407768Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/assign",
+    "method": "POST",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 24,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:49.512901Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/auto-assign",
+    "method": "POST",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:49.597284Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/auto-assign",
+    "method": "POST",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 16,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:49.695240Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/auto-assign",
+    "method": "POST",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 29,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:49.806055Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/status",
+    "method": "PATCH",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:49.889484Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/status",
+    "method": "PATCH",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 16,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:49.986961Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/status",
+    "method": "PATCH",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:50.072790Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/release",
+    "method": "POST",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:50.156723Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/release",
+    "method": "POST",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:50.240243Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/release",
+    "method": "POST",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 23,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:50.344501Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances",
+    "method": "POST",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 12,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:50.438047Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances",
+    "method": "POST",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 21,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:50.541596Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances",
+    "method": "POST",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:50.627017Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/mock-uid-6472697665725f74657",
+    "method": "GET",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 20,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:50.728112Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/mock-uid-6472697665725f74657",
+    "method": "GET",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:50.812321Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/mock-uid-6472697665725f74657",
+    "method": "GET",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 22,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:50.916240Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/mock-uid-6472697665725f74657/location",
+    "method": "POST",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:50.999879Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/mock-uid-6472697665725f74657/location",
+    "method": "POST",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:51.084217Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/mock-uid-6472697665725f74657/location",
+    "method": "POST",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 16,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:51.181503Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:51.265330Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:51.350607Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:51.435151Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 25,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:51.541120Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 2,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:51.624444Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:51.709238Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances/available",
+    "method": "GET",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:51.792729Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances/available",
+    "method": "GET",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 23,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:51.897410Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances/available",
+    "method": "GET",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:51.982124Z"
+  },
+  {
+    "endpoint": "/api/route",
+    "method": "POST",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 21,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:52.084676Z"
+  },
+  {
+    "endpoint": "/api/route",
+    "method": "POST",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 28,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:52.194863Z"
+  },
+  {
+    "endpoint": "/api/route",
+    "method": "POST",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:52.279385Z"
+  },
+  {
+    "endpoint": "/api/hospitals/recommend",
+    "method": "GET",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 18,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:52.378838Z"
+  },
+  {
+    "endpoint": "/api/hospitals/recommend",
+    "method": "GET",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 38,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:52.498157Z"
+  },
+  {
+    "endpoint": "/api/hospitals/recommend",
+    "method": "GET",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 2,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:52.582806Z"
+  },
+  {
+    "endpoint": "/api/hospitals",
+    "method": "GET",
+    "role": "none(no-token)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthN-Bypass",
+    "note": "No token - expect 401",
+    "timestamp": "2026-06-22T15:16:52.666141Z"
+  },
+  {
+    "endpoint": "/api/hospitals",
+    "method": "GET",
+    "role": "none(malformed-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 19,
+    "test_category": "AuthN-Bypass",
+    "note": "Malformed JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:52.766080Z"
+  },
+  {
+    "endpoint": "/api/hospitals",
+    "method": "GET",
+    "role": "none(expired-jwt)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 13,
+    "test_category": "AuthN-Bypass",
+    "note": "Expired JWT - expect 401",
+    "timestamp": "2026-06-22T15:16:52.860173Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/assign",
+    "method": "POST",
+    "role": "user->driver-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "AuthZ-Privesc",
+    "note": "user token on driver endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:52.946093Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/auto-assign",
+    "method": "POST",
+    "role": "user->driver-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "AuthZ-Privesc",
+    "note": "user token on driver endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:53.031171Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/status",
+    "method": "PATCH",
+    "role": "user->driver-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 14,
+    "test_category": "AuthZ-Privesc",
+    "note": "user token on driver endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:53.126131Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/release",
+    "method": "POST",
+    "role": "user->driver-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthZ-Privesc",
+    "note": "user token on driver endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:53.209586Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances",
+    "method": "POST",
+    "role": "user->driver-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 20,
+    "test_category": "AuthZ-Privesc",
+    "note": "user token on driver endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:53.312337Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/mock-uid-6472697665725f74657",
+    "method": "GET",
+    "role": "user->driver-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 26,
+    "test_category": "AuthZ-Privesc",
+    "note": "user token on driver endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:53.419713Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/mock-uid-6472697665725f74657/location",
+    "method": "POST",
+    "role": "user->driver-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 13,
+    "test_category": "AuthZ-Privesc",
+    "note": "user token on driver endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:53.514234Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "user->admin-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 27,
+    "test_category": "AuthZ-Privesc",
+    "note": "user token on admin endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:53.622365Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "driver->admin-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthZ-Privesc",
+    "note": "driver token on admin endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:53.706493Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "user->admin-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthZ-Privesc",
+    "note": "user token on admin endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:53.790962Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "driver->admin-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthZ-Privesc",
+    "note": "driver token on admin endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:53.874572Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "driver->user-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 25,
+    "test_category": "AuthZ-Privesc",
+    "note": "driver token on user-only endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:53.981172Z"
+  },
+  {
+    "endpoint": "/api/hospitals",
+    "method": "GET",
+    "role": "driver->user-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthZ-Privesc",
+    "note": "driver token on user-only endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:54.065792Z"
+  },
+  {
+    "endpoint": "/api/hospitals/recommend",
+    "method": "GET",
+    "role": "driver->user-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 20,
+    "test_category": "AuthZ-Privesc",
+    "note": "driver token on user-only endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:54.166811Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/assign",
+    "method": "POST",
+    "role": "admin->driver-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "AuthZ-Privesc",
+    "note": "admin token on driver-only endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:54.250793Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/auto-assign",
+    "method": "POST",
+    "role": "admin->driver-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 22,
+    "test_category": "AuthZ-Privesc",
+    "note": "admin token on driver-only endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:54.354757Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/status",
+    "method": "PATCH",
+    "role": "admin->driver-ep",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 14,
+    "test_category": "AuthZ-Privesc",
+    "note": "admin token on driver-only endpoint - expect 403",
+    "timestamp": "2026-06-22T15:16:54.449846Z"
+  },
+  {
+    "endpoint": "/api/route",
+    "method": "POST",
+    "role": "none->protected-ep",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "AuthZ-Privesc",
+    "note": "unauthenticated -> protected multi-role endpoint",
+    "timestamp": "2026-06-22T15:16:54.530881Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances/available",
+    "method": "GET",
+    "role": "none->protected-ep",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "AuthZ-Privesc",
+    "note": "unauthenticated -> protected multi-role endpoint",
+    "timestamp": "2026-06-22T15:16:54.614960Z"
+  },
+  {
+    "endpoint": "/api/emergencies/history/mock-uid-70617469656e745f746",
+    "method": "GET",
+    "role": "none->protected-ep",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "AuthZ-Privesc",
+    "note": "unauthenticated -> protected multi-role endpoint",
+    "timestamp": "2026-06-22T15:16:54.698656Z"
+  },
+  {
+    "endpoint": "/api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID",
+    "method": "GET",
+    "role": "none->protected-ep",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 23,
+    "test_category": "AuthZ-Privesc",
+    "note": "unauthenticated -> protected multi-role endpoint",
+    "timestamp": "2026-06-22T15:16:54.805735Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/other-user-uid-999",
+    "method": "GET",
+    "role": "user",
+    "status": 403,
+    "expected_status": [
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "IDOR",
+    "note": "IDOR: access other user's profile",
+    "timestamp": "2026-06-22T15:16:54.891236Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/other-user-uid-999",
+    "method": "POST",
+    "role": "user",
+    "status": 403,
+    "expected_status": [
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 2,
+    "test_category": "IDOR",
+    "note": "IDOR: modify other user's profile",
+    "timestamp": "2026-06-22T15:16:54.976480Z"
+  },
+  {
+    "endpoint": "/api/emergencies/other-emergency-id-999",
+    "method": "GET",
+    "role": "user",
+    "status": 404,
+    "expected_status": [
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 141,
+    "test_category": "IDOR",
+    "note": "IDOR: read other user's emergency",
+    "timestamp": "2026-06-22T15:16:55.198701Z"
+  },
+  {
+    "endpoint": "/api/emergencies/other-emergency-id-999/cancel",
+    "method": "POST",
+    "role": "user",
+    "status": 404,
+    "expected_status": [
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 124,
+    "test_category": "IDOR",
+    "note": "IDOR: cancel other user's emergency",
+    "timestamp": "2026-06-22T15:16:55.405504Z"
+  },
+  {
+    "endpoint": "/api/emergencies/history/other-user-uid-999",
+    "method": "GET",
+    "role": "user",
+    "status": 403,
+    "expected_status": [
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 2,
+    "test_category": "IDOR",
+    "note": "IDOR: read other user's history",
+    "timestamp": "2026-06-22T15:16:55.489665Z"
+  },
+  {
+    "endpoint": "/api/emergencies/other-emergency-id-999/image",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      403,
+      404,
+      400
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 17,
+    "test_category": "IDOR",
+    "note": "IDOR: upload image to another user's emergency",
+    "timestamp": "2026-06-22T15:16:55.588548Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/other-driver-uid-888",
+    "method": "GET",
+    "role": "driver",
+    "status": 403,
+    "expected_status": [
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 21,
+    "test_category": "IDOR",
+    "note": "IDOR: read another driver's ambulance [FIXED]",
+    "timestamp": "2026-06-22T15:16:55.692392Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/other-driver-uid-888/location",
+    "method": "POST",
+    "role": "driver",
+    "status": 403,
+    "expected_status": [
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 22,
+    "test_category": "IDOR",
+    "note": "IDOR: update another driver's location [FIXED]",
+    "timestamp": "2026-06-22T15:16:55.795539Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances",
+    "method": "POST",
+    "role": "driver",
+    "status": 403,
+    "expected_status": [
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 28,
+    "test_category": "IDOR",
+    "note": "IDOR: update another driver's ambulance data [FIXED]",
+    "timestamp": "2026-06-22T15:16:55.905534Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/other-emergency-id-999/assign",
+    "method": "POST",
+    "role": "driver",
+    "status": 400,
+    "expected_status": [
+      403,
+      404,
+      400
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 23,
+    "test_category": "IDOR",
+    "note": "IDOR: assign as different driverId [FIXED]",
+    "timestamp": "2026-06-22T15:16:56.011882Z"
+  },
+  {
+    "endpoint": "/api/emergencies/0000000000000001",
+    "method": "GET",
+    "role": "user",
+    "status": 404,
+    "expected_status": [
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 116,
+    "test_category": "IDOR",
+    "note": "IDOR: enumerate emergency by sequential ID",
+    "timestamp": "2026-06-22T15:16:56.209286Z"
+  },
+  {
+    "endpoint": "/api/emergencies/0000000000000002",
+    "method": "GET",
+    "role": "user",
+    "status": 404,
+    "expected_status": [
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 165,
+    "test_category": "IDOR",
+    "note": "IDOR: enumerate emergency by sequential ID+1",
+    "timestamp": "2026-06-22T15:16:56.456215Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/admin",
+    "method": "GET",
+    "role": "user",
+    "status": 403,
+    "expected_status": [
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "IDOR",
+    "note": "IDOR: access literal 'admin' profile ID",
+    "timestamp": "2026-06-22T15:16:56.541256Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/driver1",
+    "method": "GET",
+    "role": "user",
+    "status": 403,
+    "expected_status": [
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 17,
+    "test_category": "IDOR",
+    "note": "IDOR: access guessed driver profile ID",
+    "timestamp": "2026-06-22T15:16:56.639595Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/1",
+    "method": "GET",
+    "role": "user",
+    "status": 403,
+    "expected_status": [
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "IDOR",
+    "note": "IDOR: access integer profile ID",
+    "timestamp": "2026-06-22T15:16:56.724204Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "admin",
+    "status": 200,
+    "expected_status": [
+      200,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 1235,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: admin -> /api/admin/stats",
+    "timestamp": "2026-06-22T15:16:58.040509Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "user",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 26,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/admin/stats",
+    "timestamp": "2026-06-22T15:16:58.147923Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "driver",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 28,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: driver -> /api/admin/stats",
+    "timestamp": "2026-06-22T15:16:58.258912Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "none",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 28,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: none -> /api/admin/stats",
+    "timestamp": "2026-06-22T15:16:58.367371Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "admin",
+    "status": 200,
+    "expected_status": [
+      200,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 246,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: admin -> /api/admin/ambulances",
+    "timestamp": "2026-06-22T15:16:58.694746Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "user",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 27,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/admin/ambulances",
+    "timestamp": "2026-06-22T15:16:58.803857Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "driver",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 13,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: driver -> /api/admin/ambulances",
+    "timestamp": "2026-06-22T15:16:58.899538Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "none",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 25,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: none -> /api/admin/ambulances",
+    "timestamp": "2026-06-22T15:16:59.005284Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances/available",
+    "method": "GET",
+    "role": "admin",
+    "status": 200,
+    "expected_status": [
+      200,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 213,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: admin -> /api/admin/ambulances/available",
+    "timestamp": "2026-06-22T15:16:59.298832Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances/available",
+    "method": "GET",
+    "role": "user",
+    "status": 200,
+    "expected_status": [
+      200,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 106,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/admin/ambulances/available",
+    "timestamp": "2026-06-22T15:16:59.487035Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances/available",
+    "method": "GET",
+    "role": "driver",
+    "status": 200,
+    "expected_status": [
+      200,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 125,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: driver -> /api/admin/ambulances/available",
+    "timestamp": "2026-06-22T15:16:59.693619Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances/available",
+    "method": "GET",
+    "role": "none",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: none -> /api/admin/ambulances/available",
+    "timestamp": "2026-06-22T15:16:59.778008Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances",
+    "method": "POST",
+    "role": "driver",
+    "status": 200,
+    "expected_status": [
+      200,
+      400,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 257,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: driver -> /api/driver/ambulances",
+    "timestamp": "2026-06-22T15:17:00.115971Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances",
+    "method": "POST",
+    "role": "user",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 26,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/driver/ambulances",
+    "timestamp": "2026-06-22T15:17:00.223264Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances",
+    "method": "POST",
+    "role": "admin",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: admin -> /api/driver/ambulances",
+    "timestamp": "2026-06-22T15:17:00.308210Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances",
+    "method": "POST",
+    "role": "none",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: none -> /api/driver/ambulances",
+    "timestamp": "2026-06-22T15:17:00.391967Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/mock-uid-6472697665725f74657",
+    "method": "GET",
+    "role": "driver",
+    "status": 200,
+    "expected_status": [
+      200,
+      404,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 124,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: driver -> /api/driver/ambulances/mock-uid-6472697665725f74657",
+    "timestamp": "2026-06-22T15:17:00.597824Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/mock-uid-6472697665725f74657",
+    "method": "GET",
+    "role": "user",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/driver/ambulances/mock-uid-6472697665725f74657",
+    "timestamp": "2026-06-22T15:17:00.681952Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/mock-uid-6472697665725f74657",
+    "method": "GET",
+    "role": "none",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 22,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: none -> /api/driver/ambulances/mock-uid-6472697665725f74657",
+    "timestamp": "2026-06-22T15:17:00.784752Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/mock-uid-6472697665725f74657/location",
+    "method": "POST",
+    "role": "driver",
+    "status": 200,
+    "expected_status": [
+      200,
+      400,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 169,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: driver -> /api/driver/ambulances/mock-uid-6472697665725f74657/location",
+    "timestamp": "2026-06-22T15:17:01.035113Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/mock-uid-6472697665725f74657/location",
+    "method": "POST",
+    "role": "user",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/driver/ambulances/mock-uid-6472697665725f74657/location",
+    "timestamp": "2026-06-22T15:17:01.118806Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 201,
+    "expected_status": [
+      201,
+      200,
+      400,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 172,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/emergencies",
+    "timestamp": "2026-06-22T15:17:01.371548Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "driver",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 16,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: driver -> /api/emergencies",
+    "timestamp": "2026-06-22T15:17:01.468869Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "admin",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 27,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: admin -> /api/emergencies",
+    "timestamp": "2026-06-22T15:17:01.576803Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "none",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 13,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: none -> /api/emergencies",
+    "timestamp": "2026-06-22T15:17:01.670704Z"
+  },
+  {
+    "endpoint": "/api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID",
+    "method": "GET",
+    "role": "user",
+    "status": 404,
+    "expected_status": [
+      200,
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 139,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID",
+    "timestamp": "2026-06-22T15:17:01.891299Z"
+  },
+  {
+    "endpoint": "/api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID",
+    "method": "GET",
+    "role": "admin",
+    "status": 403,
+    "expected_status": [
+      200,
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 2,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: admin -> /api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID",
+    "timestamp": "2026-06-22T15:17:01.975664Z"
+  },
+  {
+    "endpoint": "/api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID",
+    "method": "GET",
+    "role": "none",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 2,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: none -> /api/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID",
+    "timestamp": "2026-06-22T15:17:02.059400Z"
+  },
+  {
+    "endpoint": "/api/emergencies/history/mock-uid-70617469656e745f746",
+    "method": "GET",
+    "role": "user",
+    "status": 200,
+    "expected_status": [
+      200,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 185,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/emergencies/history/mock-uid-70617469656e745f746",
+    "timestamp": "2026-06-22T15:17:02.325382Z"
+  },
+  {
+    "endpoint": "/api/emergencies/history/mock-uid-70617469656e745f746",
+    "method": "GET",
+    "role": "admin",
+    "status": 403,
+    "expected_status": [
+      200,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 28,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: admin -> /api/emergencies/history/mock-uid-70617469656e745f746",
+    "timestamp": "2026-06-22T15:17:02.435168Z"
+  },
+  {
+    "endpoint": "/api/emergencies/history/mock-uid-70617469656e745f746",
+    "method": "GET",
+    "role": "none",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 24,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: none -> /api/emergencies/history/mock-uid-70617469656e745f746",
+    "timestamp": "2026-06-22T15:17:02.541231Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/assign",
+    "method": "POST",
+    "role": "driver",
+    "status": 500,
+    "expected_status": [
+      200,
+      400,
+      404,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 93,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: driver -> /api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/assign",
+    "timestamp": "2026-06-22T15:17:02.717122Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/assign",
+    "method": "POST",
+    "role": "user",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 28,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/assign",
+    "timestamp": "2026-06-22T15:17:02.826414Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/status",
+    "method": "PATCH",
+    "role": "driver",
+    "status": 400,
+    "expected_status": [
+      200,
+      400,
+      404,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: driver -> /api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/status",
+    "timestamp": "2026-06-22T15:17:02.912444Z"
+  },
+  {
+    "endpoint": "/api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/status",
+    "method": "PATCH",
+    "role": "user",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 15,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/driver/emergencies/REPLACE_WITH_TEST_EMERGENCY_ID/status",
+    "timestamp": "2026-06-22T15:17:03.008529Z"
+  },
+  {
+    "endpoint": "/api/hospitals",
+    "method": "GET",
+    "role": "user",
+    "status": 200,
+    "expected_status": [
+      200,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 20,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/hospitals",
+    "timestamp": "2026-06-22T15:17:03.111397Z"
+  },
+  {
+    "endpoint": "/api/hospitals",
+    "method": "GET",
+    "role": "driver",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 13,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: driver -> /api/hospitals",
+    "timestamp": "2026-06-22T15:17:03.206146Z"
+  },
+  {
+    "endpoint": "/api/hospitals",
+    "method": "GET",
+    "role": "admin",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 21,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: admin -> /api/hospitals",
+    "timestamp": "2026-06-22T15:17:03.308480Z"
+  },
+  {
+    "endpoint": "/api/hospitals",
+    "method": "GET",
+    "role": "none",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 21,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: none -> /api/hospitals",
+    "timestamp": "2026-06-22T15:17:03.412032Z"
+  },
+  {
+    "endpoint": "/api/hospitals/recommend",
+    "method": "GET",
+    "role": "user",
+    "status": 200,
+    "expected_status": [
+      200,
+      400,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 2,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/hospitals/recommend",
+    "timestamp": "2026-06-22T15:17:03.495577Z"
+  },
+  {
+    "endpoint": "/api/hospitals/recommend",
+    "method": "GET",
+    "role": "none",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: none -> /api/hospitals/recommend",
+    "timestamp": "2026-06-22T15:17:03.581187Z"
+  },
+  {
+    "endpoint": "/api/route",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      200,
+      400,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 28,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/route",
+    "timestamp": "2026-06-22T15:17:03.690775Z"
+  },
+  {
+    "endpoint": "/api/route",
+    "method": "POST",
+    "role": "driver",
+    "status": 400,
+    "expected_status": [
+      200,
+      400,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 22,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: driver -> /api/route",
+    "timestamp": "2026-06-22T15:17:03.793703Z"
+  },
+  {
+    "endpoint": "/api/route",
+    "method": "POST",
+    "role": "admin",
+    "status": 400,
+    "expected_status": [
+      200,
+      400,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 21,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: admin -> /api/route",
+    "timestamp": "2026-06-22T15:17:03.896463Z"
+  },
+  {
+    "endpoint": "/api/route",
+    "method": "POST",
+    "role": "none",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 12,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: none -> /api/route",
+    "timestamp": "2026-06-22T15:17:03.989484Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/mock-uid-70617469656e745f746",
+    "method": "GET",
+    "role": "user",
+    "status": 200,
+    "expected_status": [
+      200,
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 22,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/auth/profile/mock-uid-70617469656e745f746",
+    "timestamp": "2026-06-22T15:17:04.093565Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/mock-uid-70617469656e745f746",
+    "method": "GET",
+    "role": "admin",
+    "status": 200,
+    "expected_status": [
+      200,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 13,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: admin -> /api/auth/profile/mock-uid-70617469656e745f746",
+    "timestamp": "2026-06-22T15:17:04.189557Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/mock-uid-70617469656e745f746",
+    "method": "GET",
+    "role": "none",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 22,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: none -> /api/auth/profile/mock-uid-70617469656e745f746",
+    "timestamp": "2026-06-22T15:17:04.292564Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/mock-uid-70617469656e745f746",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      200,
+      400
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: user -> /api/auth/profile/mock-uid-70617469656e745f746",
+    "timestamp": "2026-06-22T15:17:04.376765Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/mock-uid-70617469656e745f746",
+    "method": "POST",
+    "role": "driver",
+    "status": 403,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 15,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: driver -> /api/auth/profile/mock-uid-70617469656e745f746",
+    "timestamp": "2026-06-22T15:17:04.473116Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/mock-uid-70617469656e745f746",
+    "method": "POST",
+    "role": "none",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 27,
+    "test_category": "RBAC-Matrix",
+    "note": "RBAC: none -> /api/auth/profile/mock-uid-70617469656e745f746",
+    "timestamp": "2026-06-22T15:17:04.584134Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "tampered(alg:none admin)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT alg:none admin - must reject",
+    "timestamp": "2026-06-22T15:17:04.670080Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "tampered(alg:none admin)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 23,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT alg:none admin - must reject",
+    "timestamp": "2026-06-22T15:17:04.773783Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "tampered(alg:none admin)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 27,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT alg:none admin - must reject",
+    "timestamp": "2026-06-22T15:17:04.882781Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "tampered(alg:none driver)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 27,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT alg:none driver - must reject",
+    "timestamp": "2026-06-22T15:17:04.991514Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "tampered(alg:none driver)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 28,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT alg:none driver - must reject",
+    "timestamp": "2026-06-22T15:17:05.100490Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "tampered(alg:none driver)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 14,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT alg:none driver - must reject",
+    "timestamp": "2026-06-22T15:17:05.196080Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "tampered(alg:none user)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT alg:none user - must reject",
+    "timestamp": "2026-06-22T15:17:05.281612Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "tampered(alg:none user)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 21,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT alg:none user - must reject",
+    "timestamp": "2026-06-22T15:17:05.384032Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "tampered(alg:none user)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 27,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT alg:none user - must reject",
+    "timestamp": "2026-06-22T15:17:05.491755Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "tampered(flipped-role-admin)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 26,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT flipped-role-admin - must reject",
+    "timestamp": "2026-06-22T15:17:05.599432Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "tampered(flipped-role-admin)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 26,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT flipped-role-admin - must reject",
+    "timestamp": "2026-06-22T15:17:05.706941Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "tampered(flipped-role-admin)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT flipped-role-admin - must reject",
+    "timestamp": "2026-06-22T15:17:05.792693Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "tampered(flipped-role-driver)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT flipped-role-driver - must reject",
+    "timestamp": "2026-06-22T15:17:05.876668Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "tampered(flipped-role-driver)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 13,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT flipped-role-driver - must reject",
+    "timestamp": "2026-06-22T15:17:05.970875Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "tampered(flipped-role-driver)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 13,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT flipped-role-driver - must reject",
+    "timestamp": "2026-06-22T15:17:06.065460Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "tampered(exp-year-9999)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 27,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT exp-year-9999 - must reject",
+    "timestamp": "2026-06-22T15:17:06.173462Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "tampered(exp-year-9999)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT exp-year-9999 - must reject",
+    "timestamp": "2026-06-22T15:17:06.258096Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "tampered(exp-year-9999)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 20,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT exp-year-9999 - must reject",
+    "timestamp": "2026-06-22T15:17:06.359234Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "tampered(kid-inject)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT kid-inject - must reject",
+    "timestamp": "2026-06-22T15:17:06.443693Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "tampered(kid-inject)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 22,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT kid-inject - must reject",
+    "timestamp": "2026-06-22T15:17:06.547312Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "tampered(kid-inject)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 20,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT kid-inject - must reject",
+    "timestamp": "2026-06-22T15:17:06.648704Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "tampered(empty-sig)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 17,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT empty-sig - must reject",
+    "timestamp": "2026-06-22T15:17:06.747038Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "tampered(empty-sig)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT empty-sig - must reject",
+    "timestamp": "2026-06-22T15:17:06.832571Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "tampered(empty-sig)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 17,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT empty-sig - must reject",
+    "timestamp": "2026-06-22T15:17:06.931447Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "tampered(hs256-secret)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 18,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT hs256-secret - must reject",
+    "timestamp": "2026-06-22T15:17:07.030853Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "tampered(hs256-secret)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 18,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT hs256-secret - must reject",
+    "timestamp": "2026-06-22T15:17:07.129800Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "tampered(hs256-secret)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT hs256-secret - must reject",
+    "timestamp": "2026-06-22T15:17:07.215084Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "tampered(null-role)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 12,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT null-role - must reject",
+    "timestamp": "2026-06-22T15:17:07.308579Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances",
+    "method": "GET",
+    "role": "tampered(null-role)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 19,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT null-role - must reject",
+    "timestamp": "2026-06-22T15:17:07.409222Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "tampered(null-role)",
+    "status": 401,
+    "expected_status": [
+      401,
+      403
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 17,
+    "test_category": "Token-Tampering",
+    "note": "Tampered JWT null-role - must reject",
+    "timestamp": "2026-06-22T15:17:07.506962Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 17,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-basic | timing=17ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:07.605897Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "high",
+    "response_time_ms": 5589,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-basic | timing=5589ms | anomaly=True",
+    "timestamp": "2026-06-22T15:17:13.276532Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 27,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-basic | timing=27ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:13.385213Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-basic | timing=4ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:13.471033Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 26,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-comment | timing=26ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:13.578717Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 406,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-comment | timing=406ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:14.066043Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 18,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-comment | timing=18ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:14.164795Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 5,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-comment | timing=5ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:14.251061Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 27,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-union | timing=27ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:14.359267Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 364,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-union | timing=364ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:14.804928Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 611,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-union | timing=611ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:15.497437Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 25,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-union | timing=25ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:15.602915Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 28,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-sleep | timing=28ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:15.711984Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 513,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-sleep | timing=513ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:16.307178Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 26,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-sleep | timing=26ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:16.413872Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 28,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-sleep | timing=28ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:16.523503Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 21,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-waitfor | timing=21ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:16.626970Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 383,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-waitfor | timing=383ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:17.091286Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 20,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-waitfor | timing=20ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:17.192971Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 14,
+    "test_category": "Injection-Probe",
+    "note": "SQLi-waitfor | timing=14ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:17.288680Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "Injection-Probe",
+    "note": "NoSQLi-gt | timing=4ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:17.374017Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 423,
+    "test_category": "Injection-Probe",
+    "note": "NoSQLi-gt | timing=423ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:17.878921Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 5,
+    "test_category": "Injection-Probe",
+    "note": "NoSQLi-gt | timing=5ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:17.965153Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 6,
+    "test_category": "Injection-Probe",
+    "note": "NoSQLi-gt | timing=6ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:18.051923Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 16,
+    "test_category": "Injection-Probe",
+    "note": "NoSQLi-ne | timing=16ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:18.149427Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 395,
+    "test_category": "Injection-Probe",
+    "note": "NoSQLi-ne | timing=395ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:18.625134Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 17,
+    "test_category": "Injection-Probe",
+    "note": "NoSQLi-ne | timing=17ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:18.723362Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 28,
+    "test_category": "Injection-Probe",
+    "note": "NoSQLi-ne | timing=28ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:18.832627Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 26,
+    "test_category": "Injection-Probe",
+    "note": "NoSQLi-where | timing=26ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:18.940309Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 1183,
+    "test_category": "Injection-Probe",
+    "note": "NoSQLi-where | timing=1183ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:20.204454Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 23,
+    "test_category": "Injection-Probe",
+    "note": "NoSQLi-where | timing=23ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:20.309122Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 28,
+    "test_category": "Injection-Probe",
+    "note": "NoSQLi-where | timing=28ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:20.418767Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 27,
+    "test_category": "Injection-Probe",
+    "note": "XSS-script | timing=27ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:20.526290Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 380,
+    "test_category": "Injection-Probe",
+    "note": "XSS-script | timing=380ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:20.987196Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 13,
+    "test_category": "Injection-Probe",
+    "note": "XSS-script | timing=13ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:21.080919Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 15,
+    "test_category": "Injection-Probe",
+    "note": "XSS-script | timing=15ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:21.176740Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "Injection-Probe",
+    "note": "XSS-img | timing=4ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:21.262096Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 375,
+    "test_category": "Injection-Probe",
+    "note": "XSS-img | timing=375ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:21.718301Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 12,
+    "test_category": "Injection-Probe",
+    "note": "XSS-img | timing=12ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:21.812582Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 31,
+    "test_category": "Injection-Probe",
+    "note": "XSS-img | timing=31ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:21.924284Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "Injection-Probe",
+    "note": "SSTI-dollar | timing=4ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:22.009260Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 359,
+    "test_category": "Injection-Probe",
+    "note": "SSTI-dollar | timing=359ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:22.449761Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 27,
+    "test_category": "Injection-Probe",
+    "note": "SSTI-dollar | timing=27ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:22.558566Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 25,
+    "test_category": "Injection-Probe",
+    "note": "SSTI-dollar | timing=25ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:22.664300Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 5,
+    "test_category": "Injection-Probe",
+    "note": "SSTI-jinja | timing=5ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:22.751379Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 994,
+    "test_category": "Injection-Probe",
+    "note": "SSTI-jinja | timing=994ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:23.826185Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 10,
+    "test_category": "Injection-Probe",
+    "note": "SSTI-jinja | timing=10ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:23.920132Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 29,
+    "test_category": "Injection-Probe",
+    "note": "SSTI-jinja | timing=29ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:24.030998Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 16,
+    "test_category": "Injection-Probe",
+    "note": "PathTraversal | timing=16ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:24.128277Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 434,
+    "test_category": "Injection-Probe",
+    "note": "PathTraversal | timing=434ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:24.643659Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 24,
+    "test_category": "Injection-Probe",
+    "note": "PathTraversal | timing=24ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:24.750102Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "Injection-Probe",
+    "note": "PathTraversal | timing=3ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:24.834272Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 22,
+    "test_category": "Injection-Probe",
+    "note": "CmdInject | timing=22ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:24.937195Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 384,
+    "test_category": "Injection-Probe",
+    "note": "CmdInject | timing=384ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:25.402332Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "Injection-Probe",
+    "note": "CmdInject | timing=3ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:25.487347Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "Injection-Probe",
+    "note": "CmdInject | timing=4ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:25.572415Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 21,
+    "test_category": "Injection-Probe",
+    "note": "NullByte | timing=21ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:25.674378Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 377,
+    "test_category": "Injection-Probe",
+    "note": "NullByte | timing=377ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:26.132479Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 20,
+    "test_category": "Injection-Probe",
+    "note": "NullByte | timing=20ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:26.233871Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 15,
+    "test_category": "Injection-Probe",
+    "note": "NullByte | timing=15ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:26.330300Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 27,
+    "test_category": "Injection-Probe",
+    "note": "FormatStr | timing=27ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:26.438567Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 378,
+    "test_category": "Injection-Probe",
+    "note": "FormatStr | timing=378ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:26.897474Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 21,
+    "test_category": "Injection-Probe",
+    "note": "FormatStr | timing=21ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:27.000779Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 14,
+    "test_category": "Injection-Probe",
+    "note": "FormatStr | timing=14ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:27.096230Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 28,
+    "test_category": "Injection-Probe",
+    "note": "LDAPinject | timing=28ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:27.205856Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 371,
+    "test_category": "Injection-Probe",
+    "note": "LDAPinject | timing=371ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:27.658674Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 25,
+    "test_category": "Injection-Probe",
+    "note": "LDAPinject | timing=25ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:27.764055Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 27,
+    "test_category": "Injection-Probe",
+    "note": "LDAPinject | timing=27ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:27.872234Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 29,
+    "test_category": "Injection-Probe",
+    "note": "LargeInput-10KB | timing=29ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:27.982838Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 26,
+    "test_category": "Injection-Probe",
+    "note": "LargeInput-10KB | timing=26ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:28.089997Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 29,
+    "test_category": "Injection-Probe",
+    "note": "LargeInput-10KB | timing=29ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:28.199866Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 29,
+    "test_category": "Injection-Probe",
+    "note": "LargeInput-10KB | timing=29ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:28.310465Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "Injection-Probe",
+    "note": "HeaderInject | timing=4ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:28.396535Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 538,
+    "test_category": "Injection-Probe",
+    "note": "HeaderInject | timing=538ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:29.015482Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 4,
+    "test_category": "Injection-Probe",
+    "note": "HeaderInject | timing=4ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:29.099891Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 19,
+    "test_category": "Injection-Probe",
+    "note": "HeaderInject | timing=19ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:29.199719Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 3,
+    "test_category": "Injection-Probe",
+    "note": "UnicodeBidi | timing=3ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:29.284654Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 424,
+    "test_category": "Injection-Probe",
+    "note": "UnicodeBidi | timing=424ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:29.789146Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "none",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200,
+      201
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 19,
+    "test_category": "Injection-Probe",
+    "note": "UnicodeBidi | timing=19ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:29.889186Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "user",
+    "status": 400,
+    "expected_status": [
+      400,
+      401,
+      403,
+      422,
+      429,
+      200
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 14,
+    "test_category": "Injection-Probe",
+    "note": "UnicodeBidi | timing=14ms | anomaly=False",
+    "timestamp": "2026-06-22T15:17:29.984905Z"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+    "role": "burst-nob-login",
+    "status": 429,
+    "expected_status": [
+      429
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Rate-Limiting",
+    "note": "429 first seen at req #1 \u2014 rate limit ACTIVE",
+    "timestamp": "2026-06-22T15:17:30.069883Z"
+  },
+  {
+    "endpoint": "/api/auth/register",
+    "method": "POST",
+    "role": "burst-nob-register",
+    "status": 429,
+    "expected_status": [
+      429,
+      400
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Rate-Limiting",
+    "note": "Register 429 at req #1",
+    "timestamp": "2026-06-22T15:17:30.173401Z"
+  },
+  {
+    "endpoint": "/api/admin/stats",
+    "method": "GET",
+    "role": "burst-nob-admin",
+    "status": 200,
+    "expected_status": [
+      429,
+      200,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Rate-Limiting",
+    "note": "Admin endpoint - no rate limit (expected for admin)",
+    "timestamp": "2026-06-22T15:17:33.348605Z"
+  },
+  {
+    "endpoint": "/api/auth/profile/mock-uid-70617469656e745f746",
+    "method": "GET",
+    "role": "burst-nob-profile",
+    "status": 200,
+    "expected_status": [
+      429,
+      200,
+      403,
+      404
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Rate-Limiting",
+    "note": "Profile endpoint - no rate limit (expected)",
+    "timestamp": "2026-06-22T15:17:33.660659Z"
+  },
+  {
+    "endpoint": "/api/hospitals",
+    "method": "GET",
+    "role": "burst-nob-hospitals",
+    "status": 200,
+    "expected_status": [
+      429,
+      200,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Rate-Limiting",
+    "note": "Hospitals endpoint - no rate limit (acceptable)",
+    "timestamp": "2026-06-22T15:17:33.929235Z"
+  },
+  {
+    "endpoint": "/api/route",
+    "method": "POST",
+    "role": "burst-nob-route",
+    "status": 400,
+    "expected_status": [
+      429,
+      200,
+      400,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Rate-Limiting",
+    "note": "Route endpoint - no rate limit (acceptable)",
+    "timestamp": "2026-06-22T15:17:34.217619Z"
+  },
+  {
+    "endpoint": "/api/emergencies",
+    "method": "POST",
+    "role": "burst-nob-emergency",
+    "status": 201,
+    "expected_status": [
+      429,
+      200,
+      201,
+      400,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Rate-Limiting",
+    "note": "Emergency endpoint - no rate limit (acceptable)",
+    "timestamp": "2026-06-22T15:17:35.986315Z"
+  },
+  {
+    "endpoint": "/api/admin/ambulances/available",
+    "method": "GET",
+    "role": "burst-nob-available",
+    "status": 200,
+    "expected_status": [
+      429,
+      200,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Rate-Limiting",
+    "note": "Available ambulances - no rate limit (acceptable)",
+    "timestamp": "2026-06-22T15:17:37.447673Z"
+  },
+  {
+    "endpoint": "/api/hospitals/recommend",
+    "method": "GET",
+    "role": "burst-nob-recommend",
+    "status": 200,
+    "expected_status": [
+      429,
+      200,
+      400,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Rate-Limiting",
+    "note": "Recommend endpoint - no rate limit (acceptable)",
+    "timestamp": "2026-06-22T15:17:37.768592Z"
+  },
+  {
+    "endpoint": "/api/driver/ambulances/mock-uid-6472697665725f74657/location",
+    "method": "POST",
+    "role": "burst-nob-driverloc",
+    "status": 200,
+    "expected_status": [
+      429,
+      200,
+      400,
+      500
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Rate-Limiting",
+    "note": "Driver location - no rate limit (acceptable)",
+    "timestamp": "2026-06-22T15:17:39.242034Z"
+  },
+  {
+    "endpoint": "scan:private-key",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'private-key' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:39.435460Z"
+  },
+  {
+    "endpoint": "scan:rsa-private-key",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'rsa-private-key' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:39.516507Z"
+  },
+  {
+    "endpoint": "scan:private-key-pem",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'private-key-pem' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:39.597031Z"
+  },
+  {
+    "endpoint": "scan:jwt-secret",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'jwt-secret' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:39.677503Z"
+  },
+  {
+    "endpoint": "scan:mongodb-uri-with-creds",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'mongodb-uri-with-creds' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:39.758120Z"
+  },
+  {
+    "endpoint": "scan:postgres-uri-with-creds",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'postgres-uri-with-creds' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:39.838256Z"
+  },
+  {
+    "endpoint": "scan:aws-credentials",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'aws-credentials' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:39.918891Z"
+  },
+  {
+    "endpoint": "scan:stripe-live-key",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'stripe-live-key' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:39.999276Z"
+  },
+  {
+    "endpoint": "scan:github-token",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'github-token' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:40.079488Z"
+  },
+  {
+    "endpoint": "scan:sendgrid-key",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'sendgrid-key' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:40.160182Z"
+  },
+  {
+    "endpoint": "scan:rate-limit-disabled",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0,
+      1
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'rate-limit-disabled' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:40.241544Z"
+  },
+  {
+    "endpoint": "scan:tls-verification-disabled",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0,
+      1
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'tls-verification-disabled' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:40.322234Z"
+  },
+  {
+    "endpoint": "scan:dangerous-eval",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0,
+      1
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'dangerous-eval' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:40.402475Z"
+  },
+  {
+    "endpoint": "scan:dangerous-exec",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0,
+      1
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'dangerous-exec' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:40.483031Z"
+  },
+  {
+    "endpoint": "scan:debug-mode-enabled",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0,
+      1
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'debug-mode-enabled' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:40.563505Z"
+  },
+  {
+    "endpoint": "scan:hardcoded-password",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 1,
+    "expected_status": [
+      0,
+      1
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "hardcoded-password: found in 4 location(s) - .env.example:42",
+    "timestamp": "2026-06-22T15:17:40.643812Z"
+  },
+  {
+    "endpoint": "scan:access-token-secret",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'access-token-secret' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:40.724239Z"
+  },
+  {
+    "endpoint": "scan:twilio-sid",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'twilio-sid' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:40.804663Z"
+  },
+  {
+    "endpoint": "scan:npm-token",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'npm-token' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:40.885034Z"
+  },
+  {
+    "endpoint": "scan:oauth-client-secret",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "Pattern 'oauth-client-secret' - no match in 42 files scanned",
+    "timestamp": "2026-06-22T15:17:40.965835Z"
+  },
+  {
+    "endpoint": "scan:grep:AWS-keys",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "grep:AWS-keys: no match (42 files scanned)",
+    "timestamp": "2026-06-22T15:17:41.068343Z"
+  },
+  {
+    "endpoint": "scan:grep:RSA-private",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "grep:RSA-private: no match (42 files scanned)",
+    "timestamp": "2026-06-22T15:17:41.165834Z"
+  },
+  {
+    "endpoint": "scan:grep:JWT-secret-literal",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "grep:JWT-secret-literal: no match (42 files scanned)",
+    "timestamp": "2026-06-22T15:17:41.270753Z"
+  },
+  {
+    "endpoint": "scan:grep:Mongo-URI-creds",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "grep:Mongo-URI-creds: no match (42 files scanned)",
+    "timestamp": "2026-06-22T15:17:41.364236Z"
+  },
+  {
+    "endpoint": "scan:grep:Postgres-URI-creds",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "grep:Postgres-URI-creds: no match (42 files scanned)",
+    "timestamp": "2026-06-22T15:17:41.467862Z"
+  },
+  {
+    "endpoint": "scan:grep:Slack-webhook",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "grep:Slack-webhook: no match (42 files scanned)",
+    "timestamp": "2026-06-22T15:17:41.567852Z"
+  },
+  {
+    "endpoint": "scan:grep:GCP-service-acct",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "grep:GCP-service-acct: no match (42 files scanned)",
+    "timestamp": "2026-06-22T15:17:41.667000Z"
+  },
+  {
+    "endpoint": "scan:grep:Stripe-live-key",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "grep:Stripe-live-key: no match (42 files scanned)",
+    "timestamp": "2026-06-22T15:17:41.765770Z"
+  },
+  {
+    "endpoint": "scan:grep:Twilio-auth-token",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "grep:Twilio-auth-token: no match (42 files scanned)",
+    "timestamp": "2026-06-22T15:17:41.864305Z"
+  },
+  {
+    "endpoint": "scan:grep:GitHub-PAT",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "grep:GitHub-PAT: no match (42 files scanned)",
+    "timestamp": "2026-06-22T15:17:41.962828Z"
+  },
+  {
+    "endpoint": "scan:grep:NPM-token",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "grep:NPM-token: no match (42 files scanned)",
+    "timestamp": "2026-06-22T15:17:42.061930Z"
+  },
+  {
+    "endpoint": "scan:grep:OAuth-secret",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "grep:OAuth-secret: no match (42 files scanned)",
+    "timestamp": "2026-06-22T15:17:42.162032Z"
+  },
+  {
+    "endpoint": "scan:grep:TODO-security",
+    "method": "SCAN",
+    "role": "codebase",
+    "status": 0,
+    "expected_status": [
+      0
+    ],
+    "finding": false,
+    "severity": "info",
+    "response_time_ms": 0,
+    "test_category": "Hardcoded-Creds",
+    "note": "grep:TODO-security: no match (42 files scanned)",
+    "timestamp": "2026-06-22T15:17:42.263786Z"
+  }
+]

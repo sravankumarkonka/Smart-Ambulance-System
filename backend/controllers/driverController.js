@@ -6,8 +6,14 @@ export const assignDriver = async (req, res) => {
     const { id } = req.params;
     const { driverId, driverName, driverPhone } = req.body;
 
-    if (!driverId || !driverName || !driverPhone) {
-      return res.status(400).json({ error: 'Missing driver identification or contact info.' });
+    // IDOR fix: check ownership FIRST — before field validation
+    // This ensures a driver sending a foreign driverId gets 403, not 400
+    if (!driverId || req.user.uid !== driverId) {
+      return res.status(403).json({ error: 'Forbidden: You can only assign yourself as driver.' });
+    }
+
+    if (!driverName || !driverPhone) {
+      return res.status(400).json({ error: 'Missing driver name or contact phone.' });
     }
 
     console.log('[Backend Driver] Assigning driver', driverId, 'to emergency', id);
@@ -52,7 +58,23 @@ export const updateStatus = async (req, res) => {
       return res.status(400).json({ error: 'Status field is required.' });
     }
 
+    const allowedStatuses = ['assigned', 'arrived', 'completed', 'cancelled'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ error: `Invalid status. Must be one of: ${allowedStatuses.join(', ')}.` });
+    }
+
     const emergencyRef = db.collection('emergencies').doc(id);
+
+    // IDOR fix: driver may only update emergencies assigned to them
+    const docSnap = await emergencyRef.get();
+    if (!docSnap.exists) {
+      return res.status(404).json({ error: 'Emergency request not found.' });
+    }
+    const emergencyData = docSnap.data();
+    if (emergencyData.driverId && emergencyData.driverId !== req.user.uid) {
+      return res.status(403).json({ error: 'Forbidden: You are not assigned to this emergency.' });
+    }
+
     await emergencyRef.update({
       status,
       updatedAt: new Date().toISOString()
@@ -60,10 +82,8 @@ export const updateStatus = async (req, res) => {
 
     // If completed or cancelled, make ambulance driver available again
     if (status === 'completed' || status === 'cancelled') {
-      const docSnap = await emergencyRef.get();
-      if (docSnap.exists && docSnap.data().driverId) {
-        const driverId = docSnap.data().driverId;
-        await db.collection('ambulances').doc(driverId).set({
+      if (emergencyData.driverId) {
+        await db.collection('ambulances').doc(emergencyData.driverId).set({
           status: 'available',
           lastUpdated: new Date().toISOString()
         }, { merge: true });
@@ -88,6 +108,13 @@ export const releaseDriver = async (req, res) => {
       return res.status(404).json({ error: 'Emergency request not found.' });
     }
 
+    const emergencyData = docSnap.data();
+
+    // IDOR fix: driver may only release emergencies they are assigned to
+    if (emergencyData.driverId && emergencyData.driverId !== req.user.uid) {
+      return res.status(403).json({ error: 'Forbidden: You are not assigned to this emergency.' });
+    }
+
     const batch = db.batch();
 
     // Reset emergency to pending state
@@ -102,14 +129,13 @@ export const releaseDriver = async (req, res) => {
       updatedAt: new Date().toISOString()
     });
 
-    // Mark ambulance as available
-    if (driverId) {
-      const ambulanceRef = db.collection('ambulances').doc(driverId);
-      batch.set(ambulanceRef, {
-        status: 'available',
-        lastUpdated: new Date().toISOString()
-      }, { merge: true });
-    }
+    // Mark ambulance as available (use req.user.uid as authoritative driverId)
+    const effectiveDriverId = driverId || req.user.uid;
+    const ambulanceRef = db.collection('ambulances').doc(effectiveDriverId);
+    batch.set(ambulanceRef, {
+      status: 'available',
+      lastUpdated: new Date().toISOString()
+    }, { merge: true });
 
     await batch.commit();
 
@@ -126,6 +152,11 @@ export const updateAmbulance = async (req, res) => {
 
     if (!driverId) {
       return res.status(400).json({ error: 'DriverId is required.' });
+    }
+
+    // IDOR fix: a driver may only update their own ambulance record
+    if (req.user.uid !== driverId) {
+      return res.status(403).json({ error: 'Forbidden: You can only update your own ambulance data.' });
     }
 
     await db.collection('ambulances').doc(driverId).set({
@@ -150,8 +181,20 @@ export const updateLocation = async (req, res) => {
       return res.status(400).json({ error: 'Latitude and Longitude are required.' });
     }
 
+    // IDOR fix: a driver may only update their own location — prevents GPS spoofing
+    if (req.user.uid !== driverId) {
+      return res.status(403).json({ error: 'Forbidden: You can only update your own location.' });
+    }
+
     const lat = parseFloat(latitude);
     const lng = parseFloat(longitude);
+
+    if (isNaN(lat) || lat < -90 || lat > 90) {
+      return res.status(400).json({ error: 'Latitude must be between -90 and 90.' });
+    }
+    if (isNaN(lng) || lng < -180 || lng > 180) {
+      return res.status(400).json({ error: 'Longitude must be between -180 and 180.' });
+    }
 
     const batch = db.batch();
 
@@ -206,6 +249,13 @@ export const autoAssign = async (req, res) => {
 export const getAmbulance = async (req, res) => {
   try {
     const { driverId } = req.params;
+
+    // IDOR fix: drivers may only access their own ambulance profile
+    // Admins (checked via role) can access any ambulance via the admin route
+    if (req.user.uid !== driverId) {
+      return res.status(403).json({ error: 'Forbidden: You can only view your own ambulance profile.' });
+    }
+
     const docSnap = await db.collection('ambulances').doc(driverId).get();
 
     if (!docSnap.exists) {
@@ -218,4 +268,3 @@ export const getAmbulance = async (req, res) => {
     return res.status(500).json({ error: 'Failed to retrieve ambulance status.' });
   }
 };
-

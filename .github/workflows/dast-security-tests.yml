@@ -1,0 +1,214 @@
+name: DAST Security Tests (300 Cases)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:   # Allow manual runs from GitHub UI
+
+jobs:
+  dast:
+    name: Run 300-Test DAST Security Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # ── 1. Checkout ─────────────────────────────────────────────────────────
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ── 2. Node.js (backend) ─────────────────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── 3. Python (DAST runner + Excel report) ───────────────────────────────
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python Dependencies
+        run: pip install requests openpyxl
+
+      # ── 4. Install Node dependencies ─────────────────────────────────────────
+      - name: Install Root Frontend Dependencies
+        run: npm ci
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm ci
+
+      # ── 5. Create Environment Files ──────────────────────────────────────────
+      - name: Create Environment Files
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          # Root .env for frontend
+          cat > .env << 'EOF'
+          VITE_FIREBASE_API_KEY=AIzaSyBLp0H5GzoriDPGSIuK-Ey0Ml_9Xn4NAEc
+          VITE_FIREBASE_AUTH_DOMAIN=smart-ambulance-system-599d2.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID=smart-ambulance-system-599d2
+          VITE_FIREBASE_STORAGE_BUCKET=smart-ambulance-system-599d2.firebasestorage.app
+          VITE_FIREBASE_MESSAGING_SENDER_ID=686610895218
+          VITE_FIREBASE_APP_ID=1:686610895218:web:667b86b0d2074d0398cdeb
+          EOF
+
+          # Backend .env — uses mock auth so no real Firebase Admin key is needed
+          cat > backend/.env << 'EOF'
+          FIREBASE_API_KEY=AIzaSyBLp0H5GzoriDPGSIuK-Ey0Ml_9Xn4NAEc
+          FIREBASE_AUTH_DOMAIN=smart-ambulance-system-599d2.firebaseapp.com
+          FIREBASE_PROJECT_ID=smart-ambulance-system-599d2
+          FIREBASE_STORAGE_BUCKET=smart-ambulance-system-599d2.firebasestorage.app
+          FIREBASE_MESSAGING_SENDER_ID=686610895218
+          FIREBASE_APP_ID=1:686610895218:web:667b86b0d2074d0398cdeb
+          SKIP_RATE_LIMIT=false
+          EOF
+
+          # Write Firebase service account JSON if secret is available
+          if [ -n "$FIREBASE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "$FIREBASE_SERVICE_ACCOUNT_JSON" > backend/serviceAccountKey.json
+            echo "GOOGLE_APPLICATION_CREDENTIALS=./serviceAccountKey.json" >> backend/.env
+          fi
+
+      # ── 6. Start Backend Server ───────────────────────────────────────────────
+      - name: Start Backend Server
+        run: |
+          cd backend
+          node server.js &
+          echo "SERVER_PID=$!" >> $GITHUB_ENV
+          # Wait until the server is accepting connections (up to 30 s)
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:5000/api/health > /dev/null 2>&1 || \
+               curl -sf http://localhost:5000/ > /dev/null 2>&1; then
+              echo "✅ Backend server is up (attempt $i)"
+              break
+            fi
+            echo "Waiting for server... attempt $i"
+            sleep 1
+          done
+
+      # ── 7. Setup Test Users & Tokens ─────────────────────────────────────────
+      - name: Setup Test Users and Collect Tokens
+        run: |
+          python automated_test/setup_tokens.py
+          echo "✅ Tokens written to input.json"
+          # Show summary (tokens truncated for security)
+          python -c "
+          import json
+          cfg = json.load(open('input.json'))
+          for k in ['user','driver','admin']:
+              t = cfg.get(k,'')
+              print(f'  {k}: len={len(t)}  prefix={t[:40]}...')
+          print(f'  testUserId: {cfg.get(\"testUserId\")}')
+          print(f'  testDriverId: {cfg.get(\"testDriverId\")}')
+          "
+
+      # ── 8. Run 300-Test DAST Suite ────────────────────────────────────────────
+      - name: Run 300-Test DAST Security Suite
+        id: dast_run
+        run: |
+          python -X utf8 automated_test/dast_runner.py
+          echo "✅ DAST runner completed"
+
+      # ── 9. Validate 100% Pass Rate ────────────────────────────────────────────
+      - name: Validate 100% Pass Rate
+        run: |
+          python - << 'PYEOF'
+          import json, sys
+
+          data = json.load(open("automated_test/report.json"))
+          total    = len(data)
+          failures = [r for r in data if r.get("finding")]
+          passed   = total - len(failures)
+
+          print(f"\n{'='*60}")
+          print(f"  DAST Security Test Results")
+          print(f"{'='*60}")
+          print(f"  Total Tests : {total}")
+          print(f"  Passed      : {passed}")
+          print(f"  Failed      : {len(failures)}")
+          print(f"  Pass Rate   : {100*passed/total:.1f}%")
+          print(f"{'='*60}\n")
+
+          if failures:
+              print("❌ FAILING TESTS:")
+              for r in failures:
+                  print(f"  [{r.get('test_category','?'):20}] "
+                        f"{r.get('method','?'):6} {r.get('endpoint','?')}")
+                  print(f"    status={r.get('status')} "
+                        f"expected={r.get('expected_codes')} "
+                        f"finding={r.get('finding_type','?')}")
+              sys.exit(1)
+          else:
+              print("✅ ALL TESTS PASSED — 100% pass rate!")
+          PYEOF
+
+      # ── 10. Generate Excel Report ─────────────────────────────────────────────
+      - name: Generate Excel DAST Report
+        if: always()
+        run: |
+          python -X utf8 automated_test/generate_excel_report.py
+          echo "✅ Excel report generated"
+          ls -lh automated_test/DAST_Report_300.xlsx || true
+
+      # ── 11. Print Summary to Job Log ─────────────────────────────────────────
+      - name: Print Test Summary
+        if: always()
+        run: |
+          python - << 'PYEOF'
+          import json
+
+          try:
+              data = json.load(open("automated_test/report.json"))
+          except Exception as e:
+              print(f"Could not read report.json: {e}")
+              exit(0)
+
+          # Category breakdown
+          from collections import Counter
+          cats = Counter(r.get("test_category","?") for r in data)
+          findings = [r for r in data if r.get("finding")]
+
+          print(f"\n📊 DAST Report Summary — {len(data)} total tests\n")
+          print(f"{'Category':<30} {'Count':>6}")
+          print("-" * 40)
+          for cat, cnt in sorted(cats.items()):
+              print(f"  {cat:<28} {cnt:>6}")
+          print("-" * 40)
+          print(f"  {'TOTAL':<28} {len(data):>6}")
+          print(f"\n  Findings (security issues): {len(findings)}")
+          print(f"  Pass rate: {100*(len(data)-len(findings))/len(data):.1f}%")
+          PYEOF
+
+      # ── 12. Upload Artifacts ─────────────────────────────────────────────────
+      - name: Upload DAST Excel Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DAST-Security-Report-300
+          path: automated_test/DAST_Report_300.xlsx
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload Raw JSON Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DAST-JSON-Results
+          path: automated_test/report.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      # ── 13. Stop Backend Server ───────────────────────────────────────────────
+      - name: Stop Backend Server
+        if: always()
+        run: |
+          if [ -n "$SERVER_PID" ]; then
+            kill "$SERVER_PID" 2>/dev/null || true
+            echo "Backend server stopped (PID $SERVER_PID)"
+          fi

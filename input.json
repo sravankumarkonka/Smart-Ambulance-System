@@ -1,0 +1,9 @@
+{
+  "baseUrl": "http://localhost:5000",
+  "user": "mock-token-eyJ1aWQiOiJtb2NrLXVpZC03MDYxNzQ2OTY1NmU3NDVmNzQ2IiwiZW1haWwiOiJwYXRpZW50X3Rlc3RfcnVubmVyQGV4YW1wbGUuY29tIiwicm9sZSI6InVzZXIiLCJ1c2VyX2lkIjoibW9jay11aWQtNzA2MTc0Njk2NTZlNzQ1Zjc0NiJ9.dummy.dummy",
+  "driver": "mock-token-eyJ1aWQiOiJtb2NrLXVpZC02NDcyNjk3NjY1NzI1Zjc0NjU3IiwiZW1haWwiOiJkcml2ZXJfdGVzdF9ydW5uZXJAZXhhbXBsZS5jb20iLCJyb2xlIjoiZHJpdmVyIiwidXNlcl9pZCI6Im1vY2stdWlkLTY0NzI2OTc2NjU3MjVmNzQ2NTcifQ==.dummy.dummy",
+  "admin": "mock-token-eyJ1aWQiOiJtb2NrLXVpZC02MTY0NmQ2OTZlNWY3NDY1NzM3IiwiZW1haWwiOiJhZG1pbl90ZXN0X3J1bm5lckBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsInVzZXJfaWQiOiJtb2NrLXVpZC02MTY0NmQ2OTZlNWY3NDY1NzM3In0=.dummy.dummy",
+  "testUserId": "mock-uid-70617469656e745f746",
+  "testDriverId": "mock-uid-6472697665725f74657",
+  "testEmergencyId": "REPLACE_WITH_TEST_EMERGENCY_ID"
+}
