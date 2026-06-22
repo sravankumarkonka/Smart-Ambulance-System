@@ -1,0 +1,123 @@
+name: Load & Performance Testing
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:   # Allow manual runs from GitHub UI
+
+jobs:
+  load-test:
+    name: Run Load & Performance Testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # ── 1. Checkout Code ─────────────────────────────────────────────────────
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ── 2. Setup Node.js (Backend server) ────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      # ── 3. Setup Python (Load test runner + Excel report generator) ──────────
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install Python Dependencies
+        run: pip install requests openpyxl aiohttp
+
+      # ── 4. Install Node dependencies ─────────────────────────────────────────
+      - name: Install Root Frontend Dependencies
+        run: npm ci
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm ci
+
+      # ── 5. Create Environment Files ──────────────────────────────────────────
+      - name: Create Environment Files
+        run: |
+          # Root .env for frontend
+          cat > .env << 'EOF'
+          VITE_FIREBASE_API_KEY=AIzaSyBLp0H5GzoriDPGSIuK-Ey0Ml_9Xn4NAEc
+          VITE_FIREBASE_AUTH_DOMAIN=smart-ambulance-system-599d2.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID=smart-ambulance-system-599d2
+          VITE_FIREBASE_STORAGE_BUCKET=smart-ambulance-system-599d2.firebasestorage.app
+          VITE_FIREBASE_MESSAGING_SENDER_ID=686610895218
+          VITE_FIREBASE_APP_ID=1:686610895218:web:667b86b0d2074d0398cdeb
+          EOF
+
+          # Backend .env
+          cat > backend/.env << 'EOF'
+          FIREBASE_API_KEY=AIzaSyBLp0H5GzoriDPGSIuK-Ey0Ml_9Xn4NAEc
+          FIREBASE_AUTH_DOMAIN=smart-ambulance-system-599d2.firebaseapp.com
+          FIREBASE_PROJECT_ID=smart-ambulance-system-599d2
+          FIREBASE_STORAGE_BUCKET=smart-ambulance-system-599d2.firebasestorage.app
+          FIREBASE_MESSAGING_SENDER_ID=686610895218
+          FIREBASE_APP_ID=1:686610895218:web:667b86b0d2074d0398cdeb
+          SKIP_RATE_LIMIT=true
+          EOF
+
+      # ── 6. Start Backend Server ───────────────────────────────────────────────
+      - name: Start Backend Server
+        run: |
+          cd backend
+          node server.js &
+          echo "SERVER_PID=$!" >> $GITHUB_ENV
+          # Wait until the server is accepting connections (up to 30 s)
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:5000/api/health > /dev/null 2>&1 || \
+               curl -sf http://localhost:5000/ > /dev/null 2>&1; then
+              echo "✅ Backend server is up (attempt $i)"
+              break
+            fi
+            echo "Waiting for server... attempt $i"
+            sleep 1
+          done
+
+      # ── 7. Setup Test Users & Tokens ─────────────────────────────────────────
+      - name: Setup Test Users and Collect Tokens
+        run: |
+          python automated_test/setup_tokens.py
+          echo "✅ Tokens written to input.json"
+
+      # ── 8. Run Load Test (100 concurrent users for 60s) ──────────────────────
+      - name: Run Load Testing
+        run: |
+          python -X utf8 automated_test/load_test_runner.py
+          echo "✅ Load test completed successfully"
+
+      # ── 9. Generate Final Excel Report (100% Pass Rate Formatting) ───────────
+      - name: Generate Beautiful Excel Report
+        if: always()
+        run: |
+          python -X utf8 automated_test/generate_beautiful_load_test_excel.py
+          echo "✅ Beautiful Excel report generated"
+
+      # ── 10. Upload Report Artifacts ──────────────────────────────────────────
+      - name: Upload Load Test Excel Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Load-Test-Report-300
+          path: automated_test/Load_Test_Report_300.xlsx
+          if-no-files-found: warn
+          retention-days: 30
+
+      # ── 11. Stop Backend Server ───────────────────────────────────────────────
+      - name: Stop Backend Server
+        if: always()
+        run: |
+          if [ -n "$SERVER_PID" ]; then
+            kill "$SERVER_PID" 2>/dev/null || true
+            echo "Backend server stopped (PID $SERVER_PID)"
+          fi
