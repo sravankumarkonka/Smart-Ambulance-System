@@ -59,3 +59,10 @@ selenium-tests/screenshots/*.png
 selenium-tests/screenshots/*.html
 reports/
 coverage/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Temporary office files
+~$*.xlsx
