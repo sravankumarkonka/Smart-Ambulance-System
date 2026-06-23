@@ -24,7 +24,7 @@ const Register = () => {
     console.log('[Register] Registration initiated for email:', email);
 
     try {
-      const response = await api.post('/api/auth/register', { name, email, phone, password });
+      const response = await api.post('/api/auth/register', { name, email, phone, password, role: 'user' });
       const { customToken, idToken } = response.data;
       console.log('[Register] Backend registration successful. Custom Token present:', !!customToken);
 

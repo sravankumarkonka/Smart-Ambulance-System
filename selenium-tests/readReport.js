@@ -43,6 +43,27 @@ async function main() {
     }
   });
   
+  console.log('\n--- Failed Test Case Details ---');
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber <= 6) return; // Skip headers/summary
+    const id = row.getCell(1).value;
+    const suite = row.getCell(2).value;
+    const desc = row.getCell(3).value;
+    const inputs = row.getCell(4).value;
+    const expected = row.getCell(5).value;
+    const actual = row.getCell(6).value;
+    const status = row.getCell(7).value;
+    
+    if (status === 'FAIL') {
+      console.log(`Row: ${rowNumber} | ID: ${id} | Suite: ${suite}`);
+      console.log(`  Desc    : ${desc}`);
+      console.log(`  Inputs  : ${inputs}`);
+      console.log(`  Expected: ${expected}`);
+      console.log(`  Actual  : ${actual}`);
+      console.log('------------------------------------------------');
+    }
+  });
+  
   console.log('\n--- Data Row Counts ---');
   console.log(`Passed: ${passCount}`);
   console.log(`Failed: ${failCount}`);

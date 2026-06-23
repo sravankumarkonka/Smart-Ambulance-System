@@ -4,7 +4,7 @@ import axios from 'axios';
 
 export const register = async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
+    const { name, email, phone, password, role } = req.body;
 
     if (!name || !email || !phone || !password) {
       return res.status(400).json({ error: 'All fields (name, email, phone, password) are required.' });
@@ -26,7 +26,7 @@ export const register = async (req, res) => {
       name,
       email,
       phone,
-      role: 'user', // Default role
+      role: role || 'user', // Default role
       createdAt: new Date().toISOString()
     };
 

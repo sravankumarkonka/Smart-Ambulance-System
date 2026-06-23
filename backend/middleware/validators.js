@@ -13,7 +13,8 @@ import { body, param, query, validationResult } from 'express-validator';
 export function handleValidationErrors(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.error('[Validation Fail]', errors.array());
+    console.error('[Validation Fail] Request Body:', req.body);
+    console.error('[Validation Fail] Validation Errors:', errors.array());
     return res.status(400).json({
       error: 'Validation failed.',
       details: errors.array().map(e => ({ field: e.path, message: e.msg })),
@@ -74,6 +75,11 @@ export const registerValidators = [
       return true;
     }),
     // Do NOT escape password — it will corrupt the hash
+
+  body('role')
+    .optional()
+    .trim()
+    .isIn(['user', 'driver', 'admin']).withMessage('Invalid role.'),
 ];
 
 // ── Auth: POST /api/auth/login ────────────────────────────────────────────────
