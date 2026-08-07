@@ -1,0 +1,62 @@
+name: Selenium Web 300 Automation Tests & Excel Report
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  selenium-web-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Node Dependencies
+        run: npm install
+
+      - name: Setup Google Chrome & ChromeDriver
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget curl unzip libxi6 libgconf-2-4 libnss3 libxss1 libasound2 libatk-bridge2.0-0 libgtk-3-0
+          sudo apt-get install -y google-chrome-stable || true
+
+      - name: Start Vite Web Server
+        run: |
+          npm run dev -- --host 0.0.0.0 --port 5173 &
+          echo "Waiting for Vite web server to launch on http://localhost:5173..."
+          npx wait-on http://localhost:5173 --timeout 30000
+
+      - name: Run 300 Selenium Web Tests
+        env:
+          TARGET_URL: "http://localhost:5173"
+          EXCEL_REPORT_FILE: "Selenium_Web_300_Test_Report.xlsx"
+        run: |
+          python selenium-tests/run_web_tests_300.py
+
+      - name: Upload Excel Test Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Selenium_Web_300_Test_Report
+          path: Selenium_Web_300_Test_Report.xlsx
+          retention-days: 30
