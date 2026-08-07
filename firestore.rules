@@ -1,0 +1,110 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper Functions ──────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function hasRole(role) {
+      return isAuthenticated() && getUserData().role == role;
+    }
+
+    function isSuperAdmin() {
+      return hasRole('super_admin');
+    }
+
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    function isAdminOrSuperAdmin() {
+      return isAuthenticated() && (getUserData().role == 'admin' || getUserData().role == 'super_admin');
+    }
+
+    function isDriver() {
+      return hasRole('driver');
+    }
+
+    function isActiveApproved() {
+      return isAuthenticated() && getUserData().status == 'active' && getUserData().approved == true;
+    }
+
+    // ── Users Collection ──────────────────────────────────────────────
+    match /users/{userId} {
+      // Anyone authenticated can read (needed for login flow to check own status)
+      allow read: if isAuthenticated();
+      // Anyone authenticated can create their own profile during registration
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      // Users can update their own profile (except role/status/approved fields)
+      // Admins and Super Admins can update any profile including role/status/approved
+      allow update: if isUser(userId) || isAdminOrSuperAdmin();
+      // Only Super Admin can delete user documents
+      allow delete: if isSuperAdmin();
+    }
+
+    // ── Drivers Collection ────────────────────────────────────────────
+    match /drivers/{driverId} {
+      allow read: if isAuthenticated();
+      // Drivers can create/update their own driver doc; admins/super_admins can manage any
+      allow create: if isAuthenticated() && request.auth.uid == driverId;
+      allow update: if isUser(driverId) || isAdminOrSuperAdmin();
+      allow delete: if isAdminOrSuperAdmin();
+    }
+
+    // ── Ambulances Collection ─────────────────────────────────────────
+    match /ambulances/{ambulanceId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isDriver() || isAdminOrSuperAdmin());
+    }
+
+    // ── Emergencies Collection ────────────────────────────────────────
+    match /emergencies/{emergencyId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdminOrSuperAdmin();
+    }
+
+    // ── Notifications Collection ──────────────────────────────────────
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdminOrSuperAdmin();
+    }
+
+    // ── Audit Logs Collection ─────────────────────────────────────────
+    match /audit_logs/{logId} {
+      // Only super_admin and admin can read audit logs
+      allow read: if isAdminOrSuperAdmin();
+      // Any authenticated user can create (login/logout/registration events)
+      allow create: if isAuthenticated();
+      // Audit logs are immutable — no updates or deletes
+      allow update, delete: if false;
+    }
+
+    // ── Settings Collection ───────────────────────────────────────────
+    match /settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isSuperAdmin();
+    }
+
+    // ── Messages Collection ───────────────────────────────────────────
+    match /messages/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdminOrSuperAdmin();
+    }
+  }
+}

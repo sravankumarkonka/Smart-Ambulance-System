@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Secrets & Sensitive Data
+.env
+.env.*
+!.env.example
+backend/serviceAccountKey.json
+**/serviceAccountKey*.json
+input.json
+
+# Build output
+dist/
+build/
+bin/
+obj/
+
+# Android build outputs & local properties
+**/build/
+**/.gradle/
+**/local.properties
+**/.idea/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# Logs & Temporary files
+*.log
+logs/
+logs_dir/
+logs.zip
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/

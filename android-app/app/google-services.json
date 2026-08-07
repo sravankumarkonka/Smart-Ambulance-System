@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "686610895218",
+    "project_id": "smart-ambulance-system-599d2",
+    "storage_bucket": "smart-ambulance-system-599d2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:686610895218:android:84c221d98bc670f198cdeb",
+        "android_client_info": {
+          "package_name": "com.example.smartambulance"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "686610895218-tnqdm2so81p6b5b5ldvl6mt1si1unu10.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.smartambulance",
+            "certificate_hash": "4310be15a69996f34643475f0814e93b436dd4c5"
+          }
+        },
+        {
+          "client_id": "686610895218-8pcmm9lkpmi0c0chjkt9k10ivupmhd45.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCI4TtVXj24L-PUjBehQVNTv5RYof-25QA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "686610895218-8pcmm9lkpmi0c0chjkt9k10ivupmhd45.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
