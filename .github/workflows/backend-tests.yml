@@ -1,0 +1,61 @@
+name: Backend API 300 Automated Tests & Excel Report
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  backend-api-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Node Dependencies
+        run: |
+          npm install
+          if [ -d "backend" ]; then cd backend && npm install && cd ..; fi
+
+      - name: Start Node Backend Server
+        run: |
+          if [ -f "backend/server.js" ]; then
+            cd backend && npm start &
+            echo "Waiting for backend server on http://localhost:5000..."
+            npx wait-on http://localhost:5000 --timeout 30000 || true
+            cd ..
+          fi
+
+      - name: Run 300 Backend API Tests
+        env:
+          API_URL: "http://localhost:5000"
+          BACKEND_REPORT_FILE: "Backend_API_300_Test_Report.xlsx"
+        run: |
+          python backend-tests/run_backend_tests_300.py
+
+      - name: Upload Backend Excel Test Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Backend_API_300_Test_Report
+          path: Backend_API_300_Test_Report.xlsx
+          retention-days: 30
