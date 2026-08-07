@@ -1,0 +1,57 @@
+name: DAST Vulnerability 300 Security Tests & Excel Report
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  dast-security-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Node Dependencies
+        run: npm install
+
+      - name: Start Vite Web Server
+        run: |
+          npm run dev -- --host 0.0.0.0 --port 5173 &
+          echo "Waiting for web server to start..."
+          npx wait-on http://localhost:5173 --timeout 30000
+
+      - name: Run 300 DAST Vulnerability Tests
+        env:
+          TARGET_URL: "http://localhost:5173"
+          API_URL: "http://localhost:5000"
+          DAST_REPORT_FILE: "DAST_Vulnerability_300_Test_Report.xlsx"
+        run: |
+          python dast-tests/run_dast_tests_300.py
+
+      - name: Upload DAST Excel Test Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DAST_Vulnerability_300_Test_Report
+          path: DAST_Vulnerability_300_Test_Report.xlsx
+          retention-days: 30
