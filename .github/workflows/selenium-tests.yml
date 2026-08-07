@@ -34,11 +34,8 @@ jobs:
       - name: Install Node Dependencies
         run: npm install
 
-      - name: Setup Google Chrome & ChromeDriver
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget curl unzip libxi6 libgconf-2-4 libnss3 libxss1 libasound2 libatk-bridge2.0-0 libgtk-3-0
-          sudo apt-get install -y google-chrome-stable || true
+      - name: Setup Google Chrome
+        uses: browser-actions/setup-chrome@v1
 
       - name: Start Vite Web Server
         run: |
