@@ -148,6 +148,11 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<User>
 
+    @GET("approval/pending-drivers")
+    suspend fun getPendingDrivers(
+        @Header("Authorization") token: String
+    ): List<User>
+
     @POST("approval/admin/{uid}/approve")
     suspend fun approveAdmin(
         @Header("Authorization") token: String,

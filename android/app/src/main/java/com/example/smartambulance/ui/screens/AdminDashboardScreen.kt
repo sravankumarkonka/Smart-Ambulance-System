@@ -154,34 +154,48 @@ fun AdminDashboardScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1))
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFBEB))
                 ) {
-                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("⚠️ Pending Driver Approvals (${pendingDrivers.size})", color = Color(0xFFB45309), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text(
+                            "⚠️ Driver Registration Requests (${pendingDrivers.size} Pending Approval)",
+                            color = Color(0xFFB45309),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
                         pendingDrivers.forEach { driver ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth().background(Color.White, RoundedCornerShape(8.dp)).padding(10.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(10.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color.White)
                             ) {
-                                Column {
-                                    Text(driver.name.ifBlank { "Driver Candidate" }, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                    Text("${driver.email} | ${driver.phone}", fontSize = 11.sp, color = Color.Gray)
-                                }
-                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    Button(
-                                        onClick = { viewModel.approveDriver(driver.uid) },
-                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
-                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                                    ) {
-                                        Text("Approve", fontSize = 11.sp)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                                        Text(driver.name.ifBlank { "Driver Candidate" }, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Black)
+                                        Text("Email: ${driver.email} | Phone: ${driver.phone}", fontSize = 11.sp, color = Color.DarkGray)
                                     }
-                                    OutlinedButton(
-                                        onClick = { viewModel.rejectDriver(driver.uid) },
-                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red),
-                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                                    ) {
-                                        Text("Reject", fontSize = 11.sp)
+                                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                                        Button(
+                                            onClick = { viewModel.approveDriver(driver.uid) },
+                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E6BFF)),
+                                            shape = RoundedCornerShape(20.dp),
+                                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                                        ) {
+                                            Text("Approve Driver", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                        }
+                                        OutlinedButton(
+                                            onClick = { viewModel.rejectDriver(driver.uid) },
+                                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFEF4444)),
+                                            shape = RoundedCornerShape(20.dp),
+                                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFEF4444)),
+                                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                                        ) {
+                                            Text("Reject", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        }
                                     }
                                 }
                             }

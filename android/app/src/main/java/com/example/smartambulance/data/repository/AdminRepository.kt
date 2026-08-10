@@ -55,7 +55,7 @@ class AdminRepository @Inject constructor(
     suspend fun getPendingDrivers(): Result<List<com.example.smartambulance.data.model.User>> {
         return try {
             val token = SessionManager.getFormattedToken()
-            val response = apiService.getPendingAdmins(token) // or driver pending
+            val response = apiService.getPendingDrivers(token)
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
