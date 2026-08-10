@@ -29,6 +29,9 @@ import com.example.smartambulance.data.model.User
 import com.example.smartambulance.ui.viewmodel.AdminUiState
 import com.example.smartambulance.ui.viewmodel.AdminViewModel
 
+private fun String?.safeLower(): String = (this ?: "").lowercase()
+private fun String?.safeUpper(): String = (this ?: "").uppercase()
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminDashboardScreen(
@@ -68,13 +71,13 @@ fun AdminDashboardScreen(
     // Metric Calculations matching Web Admin Dashboard
     val totalCount = emergencies.size
     val activeStatuses = listOf("pending", "waiting", "assigned", "accepted", "on_the_way", "reached", "arrived", "patient_picked", "hospital_reached")
-    val activeCount = emergencies.count { activeStatuses.contains(it.status.lowercase()) }
-    val criticalCount = emergencies.count { activeStatuses.contains(it.status.lowercase()) && it.severityLevel.lowercase() == "critical" }
-    val completedCount = emergencies.count { it.status.lowercase() == "completed" }
-    val pendingCount = emergencies.count { it.status.lowercase() == "pending" || it.status.lowercase() == "waiting" }
+    val activeCount = emergencies.count { activeStatuses.contains(it.status.safeLower()) }
+    val criticalCount = emergencies.count { activeStatuses.contains(it.status.safeLower()) && it.severityLevel.safeLower() == "critical" }
+    val completedCount = emergencies.count { it.status.safeLower() == "completed" }
+    val pendingCount = emergencies.count { it.status.safeLower() == "pending" || it.status.safeLower() == "waiting" }
 
-    val availableAmbs = ambulances.count { it.status == "available" }
-    val busyAmbs = ambulances.count { it.status == "busy" }
+    val availableAmbs = ambulances.count { it.status.safeLower() == "available" }
+    val busyAmbs = ambulances.count { it.status.safeLower() == "busy" }
     val totalDrivers = ambulances.size.coerceAtLeast(1)
     val fleetUtilization = Math.round((busyAmbs.toDouble() / totalDrivers) * 100).toInt()
 
@@ -97,9 +100,9 @@ fun AdminDashboardScreen(
 
     // Priority Queue sorting (Critical -> High -> Medium -> Low)
     val priorityQueue = emergencies
-        .filter { listOf("pending", "waiting", "assigned", "arrived").contains(it.status.lowercase()) }
+        .filter { listOf("pending", "waiting", "assigned", "arrived").contains(it.status.safeLower()) }
         .sortedWith(compareByDescending<Emergency> { e ->
-            when (e.severityLevel.lowercase()) {
+            when (e.severityLevel.safeLower()) {
                 "critical" -> 4
                 "high" -> 3
                 "medium" -> 2
@@ -162,7 +165,7 @@ fun AdminDashboardScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column {
-                                    Text(driver.name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                    Text(driver.name.ifBlank { "Driver Candidate" }, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                     Text("${driver.email} | ${driver.phone}", fontSize = 11.sp, color = Color.Gray)
                                 }
                                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -254,24 +257,24 @@ fun PriorityQueueTab(queue: List<Emergency>, onNavigate: (NavKey) -> Unit) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(item.patientName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(item.patientName ?: "Emergency Patient", fontWeight = FontWeight.Bold, fontSize = 16.sp)
 
-                            val sevColor = when (item.severityLevel.lowercase()) {
+                            val sevColor = when (item.severityLevel.safeLower()) {
                                 "critical" -> Color(0xFFD32F2F)
                                 "high" -> Color(0xFFE11D48)
                                 "medium" -> Color(0xFFD97706)
                                 else -> Color(0xFF16A34A)
                             }
                             Text(
-                                item.severityLevel.uppercase(),
+                                item.severityLevel.safeUpper(),
                                 color = sevColor,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 12.sp
                             )
                         }
 
-                        Text("Type: ${item.emergencyType.uppercase()}", fontSize = 12.sp, color = Color.DarkGray)
-                        Text("Status: ${item.status.uppercase()}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1976D2))
+                        Text("Type: ${item.emergencyType.safeUpper()}", fontSize = 12.sp, color = Color.DarkGray)
+                        Text("Status: ${item.status.safeUpper()}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1976D2))
 
                         item.driverName?.let {
                             Text("Assigned Driver: 🚑 $it", fontSize = 12.sp, fontWeight = FontWeight.Bold)
@@ -297,17 +300,17 @@ fun PriorityQueueTab(queue: List<Emergency>, onNavigate: (NavKey) -> Unit) {
 fun AnalyticsBreakdownTab(emergencies: List<Emergency>) {
     val total = emergencies.size.coerceAtLeast(1)
 
-    val accidentCount = emergencies.count { it.emergencyType.lowercase() == "accident" }
-    val cardiacCount = emergencies.count { it.emergencyType.lowercase() == "cardiac" }
-    val respiratoryCount = emergencies.count { it.emergencyType.lowercase() == "respiratory" }
-    val strokeCount = emergencies.count { it.emergencyType.lowercase() == "stroke" }
-    val pregnancyCount = emergencies.count { it.emergencyType.lowercase() == "pregnancy" }
-    val otherCount = emergencies.count { it.emergencyType.lowercase() == "other" || it.emergencyType.isEmpty() }
+    val accidentCount = emergencies.count { it.emergencyType.safeLower() == "accident" }
+    val cardiacCount = emergencies.count { it.emergencyType.safeLower() == "cardiac" }
+    val respiratoryCount = emergencies.count { it.emergencyType.safeLower() == "respiratory" }
+    val strokeCount = emergencies.count { it.emergencyType.safeLower() == "stroke" }
+    val pregnancyCount = emergencies.count { it.emergencyType.safeLower() == "pregnancy" }
+    val otherCount = emergencies.count { it.emergencyType.safeLower() == "other" || (it.emergencyType ?: "").isEmpty() }
 
-    val criticalSev = emergencies.count { it.severityLevel.lowercase() == "critical" }
-    val highSev = emergencies.count { it.severityLevel.lowercase() == "high" }
-    val mediumSev = emergencies.count { it.severityLevel.lowercase() == "medium" || it.severityLevel.isEmpty() }
-    val lowSev = emergencies.count { it.severityLevel.lowercase() == "low" }
+    val criticalSev = emergencies.count { it.severityLevel.safeLower() == "critical" }
+    val highSev = emergencies.count { it.severityLevel.safeLower() == "high" }
+    val mediumSev = emergencies.count { it.severityLevel.safeLower() == "medium" || (it.severityLevel ?: "").isEmpty() }
+    val lowSev = emergencies.count { it.severityLevel.safeLower() == "low" }
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.fillMaxSize()) {
         item {
@@ -349,12 +352,12 @@ fun DispatchHistoryTab(
     onSeverityFilterChange: (String) -> Unit
 ) {
     val filtered = emergencies.filter { e ->
-        val statusMatch = statusFilter == "all" || e.status.lowercase() == statusFilter.lowercase()
-        val severityMatch = severityFilter == "all" || e.severityLevel.lowercase() == severityFilter.lowercase()
+        val statusMatch = statusFilter == "all" || e.status.safeLower() == statusFilter.safeLower()
+        val severityMatch = severityFilter == "all" || e.severityLevel.safeLower() == severityFilter.safeLower()
         val searchMatch = searchQuery.isEmpty() ||
-            e.patientName.contains(searchQuery, ignoreCase = true) ||
+            (e.patientName ?: "").contains(searchQuery, ignoreCase = true) ||
             (e.driverName ?: "").contains(searchQuery, ignoreCase = true) ||
-            e.emergencyType.contains(searchQuery, ignoreCase = true) ||
+            (e.emergencyType ?: "").contains(searchQuery, ignoreCase = true) ||
             (e.id ?: "").contains(searchQuery, ignoreCase = true)
         statusMatch && severityMatch && searchMatch
     }
@@ -387,12 +390,12 @@ fun DispatchHistoryTab(
                 Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp)) {
                     Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(item.patientName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                            Text(item.severityLevel.uppercase(), fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color(0xFFD97706))
+                            Text(item.patientName ?: "Emergency Patient", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Text(item.severityLevel.safeUpper(), fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color(0xFFD97706))
                         }
-                        Text("Type: ${item.emergencyType} | ID: ${(item.id ?: "").take(8)}...", fontSize = 11.sp, color = Color.Gray)
+                        Text("Type: ${item.emergencyType ?: "General"} | ID: ${(item.id ?: "").take(8)}...", fontSize = 11.sp, color = Color.Gray)
                         Text("Driver: ${item.driverName ?: "Unassigned"}", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
-                        Text("Status: ${item.status.uppercase()}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1976D2))
+                        Text("Status: ${item.status.safeUpper()}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1976D2))
                     }
                 }
             }
@@ -416,7 +419,7 @@ fun AdminAuditLogsTab(logs: List<AuditLog>) {
                 ) {
                     Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(log.action.uppercase(), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                            Text(log.action.safeUpper(), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
                             Text(log.createdAt ?: "", fontSize = 10.sp, color = Color.Gray)
                         }
                         Text("By: ${log.performedBy}", fontSize = 11.sp, color = Color.DarkGray)
