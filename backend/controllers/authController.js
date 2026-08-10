@@ -197,10 +197,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required.' });
     }
 
-    const apiKey = process.env.FIREBASE_API_KEY || process.env.VITE_FIREBASE_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: 'Server configuration error.' });
-    }
+    const apiKey = process.env.FIREBASE_API_KEY || process.env.VITE_FIREBASE_API_KEY || 'AIzaSyBLp0H5GzoriDPGSIuK-Ey0Ml_9Xn4NAEc';
 
     // 1. Authenticate via Firebase REST API
     let uid, idToken;
