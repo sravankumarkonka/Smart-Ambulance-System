@@ -7,7 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -121,12 +122,15 @@ fun DriverDashboardScreen(
             TopAppBar(
                 title = { Text("Driver Dashboard", fontWeight = FontWeight.Bold) },
                 actions = {
+                    IconButton(onClick = { onNavigate(EmergencyHistory) }) {
+                        Icon(Icons.Default.DateRange, contentDescription = "History")
+                    }
                     IconButton(onClick = {
                         SessionManager.clearSession()
                         Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
                         onNavigate(Login)
                     }) {
-                        Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
+                        Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Logout")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

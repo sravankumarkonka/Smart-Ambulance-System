@@ -48,10 +48,10 @@ fun RegisterScreen(
             is AuthUiState.Success -> {
                 Toast.makeText(context, "Registration successful!", Toast.LENGTH_SHORT).show()
                 viewModel.resetState()
-                if (state.role == "driver") {
-                    onNavigate(DriverDashboard)
-                } else {
-                    onNavigate(UserDashboard)
+                when (state.role) {
+                    "driver" -> onNavigate(DriverDashboard)
+                    "admin" -> onNavigate(AdminDashboard)
+                    else -> onNavigate(UserDashboard)
                 }
             }
             is AuthUiState.Error -> {
@@ -150,17 +150,16 @@ fun RegisterScreen(
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(end = 16.dp)
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
                             selected = role == "user",
                             onClick = { role = "user" }
                         )
-                        Text("Patient", modifier = Modifier.padding(start = 4.dp))
+                        Text("Patient", modifier = Modifier.padding(start = 2.dp), fontSize = 13.sp)
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -168,7 +167,15 @@ fun RegisterScreen(
                             selected = role == "driver",
                             onClick = { role = "driver" }
                         )
-                        Text("Driver", modifier = Modifier.padding(start = 4.dp))
+                        Text("Driver", modifier = Modifier.padding(start = 2.dp), fontSize = 13.sp)
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = role == "admin",
+                            onClick = { role = "admin" }
+                        )
+                        Text("Admin", modifier = Modifier.padding(start = 2.dp), fontSize = 13.sp)
                     }
                 }
 

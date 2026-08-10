@@ -32,6 +32,7 @@ if (process.env.NODE_ENV === 'production' && !process.env.FIREBASE_SERVICE_ACCOU
 initializeCollections().catch(err => console.warn('[Server Boot] Collection init warning:', err.message));
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000;
 
 // Enable Helmet for security headers with cross-origin support

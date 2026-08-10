@@ -55,8 +55,7 @@ object RetrofitClient {
     }
 
     fun getBaseUrl(): String {
-        val host = if (isEmulator()) "10.0.2.2" else currentHost
-        return "http://$host:$PORT/"
+        return "http://$currentHost:$PORT/"
     }
 
     fun setPhysicalIp(ip: String) {
@@ -75,13 +74,6 @@ object RetrofitClient {
      * Called once at app startup so subsequent requests always go to the live host.
      */
     fun probeAndSelectBestHost() {
-        if (isEmulator()) {
-            currentHost = "10.0.2.2"
-            hostConfirmed = true
-            rebuildApiService()
-            return
-        }
-
         // Skip if we probed recently
         val now = System.currentTimeMillis()
         if (now - lastProbeTimeMs < PROBE_COOLDOWN_MS && hostConfirmed) {
@@ -90,8 +82,14 @@ object RetrofitClient {
         }
         lastProbeTimeMs = now
 
+        val hostsToProbe = if (isEmulator()) {
+            listOf("10.0.2.2") + candidateHosts.filter { it != "10.0.2.2" }
+        } else {
+            candidateHosts
+        }
+
         CoroutineScope(Dispatchers.IO).launch {
-            for (candidate in candidateHosts) {
+            for (candidate in hostsToProbe) {
                 try {
                     val probeClient = OkHttpClient.Builder()
                         .connectTimeout(2, TimeUnit.SECONDS)
@@ -110,7 +108,7 @@ object RetrofitClient {
                         Log.d(TAG, "✅ Backend reachable at: $candidate:$PORT")
                         return@launch
                     }
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     Log.w(TAG, "❌ Host $candidate unreachable: ${e.message}")
                 }
             }

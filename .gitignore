@@ -19,6 +19,7 @@ obj/
 # Android build outputs & local properties
 **/build/
 **/.gradle/
+**/.kotlin/
 **/local.properties
 **/.idea/
 *.apk
