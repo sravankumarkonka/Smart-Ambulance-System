@@ -87,9 +87,9 @@ fun RegisterScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(28.dp),
+                    .padding(18.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
                     text = "Create Account",
@@ -159,7 +159,7 @@ fun RegisterScreen(
                             selected = role == "user",
                             onClick = { role = "user" }
                         )
-                        Text("Patient", modifier = Modifier.padding(start = 2.dp), fontSize = 13.sp)
+                        Text("Patient", maxLines = 1, modifier = Modifier.padding(start = 2.dp), fontSize = 13.sp)
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -167,7 +167,7 @@ fun RegisterScreen(
                             selected = role == "driver",
                             onClick = { role = "driver" }
                         )
-                        Text("Driver", modifier = Modifier.padding(start = 2.dp), fontSize = 13.sp)
+                        Text("Driver", maxLines = 1, modifier = Modifier.padding(start = 2.dp), fontSize = 13.sp)
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -175,7 +175,7 @@ fun RegisterScreen(
                             selected = role == "admin",
                             onClick = { role = "admin" }
                         )
-                        Text("Admin", modifier = Modifier.padding(start = 2.dp), fontSize = 13.sp)
+                        Text("Admin", maxLines = 1, modifier = Modifier.padding(start = 2.dp), fontSize = 13.sp)
                     }
                 }
 

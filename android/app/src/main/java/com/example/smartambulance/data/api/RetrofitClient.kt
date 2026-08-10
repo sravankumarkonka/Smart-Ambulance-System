@@ -84,9 +84,10 @@ object RetrofitClient {
         CoroutineScope(Dispatchers.IO).launch {
             for (candidate in hostsToProbe) {
                 try {
+                    val timeoutSeconds = if (candidate.contains("onrender.com")) 25L else 2L
                     val probeClient = OkHttpClient.Builder()
-                        .connectTimeout(2, TimeUnit.SECONDS)
-                        .readTimeout(2, TimeUnit.SECONDS)
+                        .connectTimeout(timeoutSeconds, TimeUnit.SECONDS)
+                        .readTimeout(timeoutSeconds, TimeUnit.SECONDS)
                         .build()
                     val healthUrl = if (candidate.contains("onrender.com")) "https://$candidate/health" else "http://$candidate:$PORT/health"
                     val req = Request.Builder()
@@ -98,7 +99,7 @@ object RetrofitClient {
                         currentHost = candidate
                         hostConfirmed = true
                         rebuildApiService()
-                        Log.d(TAG, "✅ Backend reachable at: $candidate:$PORT")
+                        Log.d(TAG, "✅ Backend reachable at: $candidate")
                         return@launch
                     }
                 } catch (e: Throwable) {
@@ -115,6 +116,15 @@ object RetrofitClient {
         try {
             chain.proceed(request)
         } catch (e: java.io.IOException) {
+            // If primary Render host timed out during cold start, retry once after a short pause
+            if (currentHost.contains("onrender.com")) {
+                Log.w(TAG, "Render request failed (${e.message}) — retrying in 2 seconds for server spin up...")
+                try {
+                    Thread.sleep(2000)
+                    return@Interceptor chain.proceed(request)
+                } catch (_: Exception) {}
+            }
+
             if (hostConfirmed) {
                 hostConfirmed = false
                 Log.w(TAG, "Confirmed host $currentHost failed — marking unconfirmed")
@@ -151,9 +161,9 @@ object RetrofitClient {
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(dynamicHostInterceptor)
         .addInterceptor(loggingInterceptor)
-        .connectTimeout(5, TimeUnit.SECONDS)
-        .readTimeout(15, TimeUnit.SECONDS)
-        .writeTimeout(15, TimeUnit.SECONDS)
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
         .build()
 
     @Volatile
