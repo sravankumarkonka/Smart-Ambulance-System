@@ -42,20 +42,23 @@ fun MainNavigation() {
                 })
             }
             entry<ReportEmergency> {
-                ReportEmergencyScreen(onNavigate = { navKey ->
-                    backStack.add(navKey)
-                })
+                ReportEmergencyScreen(
+                    onNavigate = { navKey -> backStack.add(navKey) },
+                    onBack = { backStack.removeLastOrNull() }
+                )
             }
             entry<TrackAmbulance> { key ->
                 TrackAmbulanceScreen(
                     emergencyId = key.emergencyId,
-                    onNavigate = { navKey -> backStack.add(navKey) }
+                    onNavigate = { navKey -> backStack.add(navKey) },
+                    onBack = { backStack.removeLastOrNull() }
                 )
             }
             entry<EmergencyHistory> {
-                EmergencyHistoryScreen(onNavigate = { navKey ->
-                    backStack.add(navKey)
-                })
+                EmergencyHistoryScreen(
+                    onNavigate = { navKey -> backStack.add(navKey) },
+                    onBack = { backStack.removeLastOrNull() }
+                )
             }
             entry<DriverDashboard> {
                 DriverDashboardScreen(onNavigate = { navKey ->
@@ -68,7 +71,8 @@ fun MainNavigation() {
             entry<ActiveEmergency> { key ->
                 ActiveEmergencyScreen(
                     emergencyId = key.emergencyId,
-                    onNavigate = { navKey -> backStack.add(navKey) }
+                    onNavigate = { navKey -> backStack.add(navKey) },
+                    onBack = { backStack.removeLastOrNull() }
                 )
             }
             entry<AdminDashboard> {
@@ -88,9 +92,10 @@ fun MainNavigation() {
                 })
             }
             entry<LiveMap> {
-                LiveMapScreen(onNavigate = { navKey ->
-                    backStack.add(navKey)
-                })
+                LiveMapScreen(
+                    onNavigate = { navKey -> backStack.add(navKey) },
+                    onBack = { backStack.removeLastOrNull() }
+                )
             }
         }
     )

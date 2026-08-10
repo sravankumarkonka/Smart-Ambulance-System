@@ -35,6 +35,7 @@ import kotlinx.coroutines.delay
 fun TrackAmbulanceScreen(
     emergencyId: String,
     onNavigate: (NavKey) -> Unit,
+    onBack: () -> Unit = {},
     viewModel: UserViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -68,7 +69,7 @@ fun TrackAmbulanceScreen(
             TopAppBar(
                 title = { Text("Track Ambulance", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = { onNavigate(UserDashboard) }) {
+                    IconButton(onClick = { onBack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },

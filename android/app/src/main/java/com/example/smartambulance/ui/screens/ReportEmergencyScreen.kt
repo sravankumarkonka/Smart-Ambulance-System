@@ -32,6 +32,7 @@ import com.example.smartambulance.ui.viewmodel.UserViewModel
 @Composable
 fun ReportEmergencyScreen(
     onNavigate: (NavKey) -> Unit,
+    onBack: () -> Unit = {},
     viewModel: UserViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -68,7 +69,7 @@ fun ReportEmergencyScreen(
             is UserUiState.Success -> {
                 Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
                 viewModel.resetState()
-                onNavigate(UserDashboard)
+                onBack()
             }
             is UserUiState.Error -> {
                 Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
@@ -83,7 +84,7 @@ fun ReportEmergencyScreen(
             TopAppBar(
                 title = { Text("Report Emergency", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = { onNavigate(UserDashboard) }) {
+                    IconButton(onClick = { onBack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },

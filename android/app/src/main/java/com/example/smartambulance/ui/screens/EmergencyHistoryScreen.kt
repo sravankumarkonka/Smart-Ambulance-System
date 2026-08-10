@@ -32,6 +32,7 @@ private fun String?.safeUpper(): String = (this ?: "").uppercase()
 @Composable
 fun EmergencyHistoryScreen(
     onNavigate: (NavKey) -> Unit,
+    onBack: () -> Unit = {},
     viewModel: UserViewModel = viewModel()
 ) {
     val history by viewModel.history.collectAsStateWithLifecycle()
@@ -70,9 +71,7 @@ fun EmergencyHistoryScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        if (isDriver) onNavigate(DriverDashboard) else onNavigate(UserDashboard)
-                    }) {
+                    IconButton(onClick = { onBack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },

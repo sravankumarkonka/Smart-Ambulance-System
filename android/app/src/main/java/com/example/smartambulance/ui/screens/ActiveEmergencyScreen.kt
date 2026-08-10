@@ -41,6 +41,7 @@ private fun String?.safeUpper(): String = (this ?: "").uppercase()
 fun ActiveEmergencyScreen(
     emergencyId: String,
     onNavigate: (NavKey) -> Unit,
+    onBack: () -> Unit = {},
     viewModel: DriverViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -62,7 +63,7 @@ fun ActiveEmergencyScreen(
                 Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
                 viewModel.resetState()
                 if (emergency == null) {
-                    onNavigate(DriverDashboard)
+                    onBack()
                 }
             }
             is DriverUiState.Error -> {
@@ -83,7 +84,7 @@ fun ActiveEmergencyScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { onNavigate(DriverDashboard) }) {
+                    IconButton(onClick = { onBack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },

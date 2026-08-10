@@ -35,6 +35,7 @@ import com.google.maps.android.compose.*
 @Composable
 fun LiveMapScreen(
     onNavigate: (NavKey) -> Unit,
+    onBack: () -> Unit = {},
     viewModel: AdminViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -60,7 +61,7 @@ fun LiveMapScreen(
             TopAppBar(
                 title = { Text("Ambulance Fleet Live Map", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = { onNavigate(AdminDashboard) }) {
+                    IconButton(onClick = { onBack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
