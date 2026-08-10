@@ -15,16 +15,16 @@ const REQUIRED_COLLECTIONS = [
 
 export async function initializeCollections() {
   try {
-    console.log('[CollectionInitializer] Checking and initializing required Firestore collections...');
+    console.log('[CollectionInitializer] Checking and initializing required Firestore collections in parallel...');
 
-    for (const collectionName of REQUIRED_COLLECTIONS) {
+    const now = new Date().toISOString();
+    await Promise.all(REQUIRED_COLLECTIONS.map(async (collectionName) => {
       const colRef = db.collection(collectionName);
       const snapshot = await colRef.limit(1).get();
 
       if (snapshot.empty) {
         console.log(`[CollectionInitializer] Initializing collection '${collectionName}' with default schema marker...`);
-        const now = new Date().toISOString();
-        
+
         let initialDocData = {
           _schemaVersion: '1.0.0',
           createdAt: now,
@@ -58,9 +58,9 @@ export async function initializeCollections() {
           await colRef.doc('_placeholder').set(initialDocData);
         }
       }
-    }
-    console.log('[CollectionInitializer] All 9 Firestore collections successfully verified and ready.');
+    }));
+    console.log('[CollectionInitializer] All Firestore collections successfully verified.');
   } catch (error) {
-    console.warn('[CollectionInitializer] Warning during collection initialization (continuing in dev/test mode):', error.message);
+    console.warn('[CollectionInitializer] Warning during collection initialization:', error.message);
   }
 }
