@@ -408,7 +408,7 @@ fun AdminAuditLogsTab(logs: List<AuditLog>) {
         }
     } else {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxSize()) {
-            items(logs, key = { it.id }) { log ->
+            items(logs, key = { it.id.ifEmpty { it.hashCode().toString() } }) { log ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
@@ -427,5 +427,46 @@ fun AdminAuditLogsTab(logs: List<AuditLog>) {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun MetricCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    value: String,
+    subtext: String,
+    color: Color
+) {
+    Card(
+        modifier = modifier.height(72.dp),
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f))
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp, vertical = 6.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(title.uppercase(), fontSize = 9.sp, fontWeight = FontWeight.Bold, color = color)
+            Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = color)
+            Text(subtext, fontSize = 9.sp, color = Color.Gray, maxLines = 1)
+        }
+    }
+}
+
+@Composable
+fun CategoryProgressRow(label: String, count: Int, total: Int, color: Color) {
+    val pct = Math.round((count.toDouble() / total) * 100).toInt()
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(label, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+            Text("$count ($pct%)", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = color)
+        }
+        LinearProgressIndicator(
+            progress = { (count.toFloat() / total).coerceIn(0f, 1f) },
+            modifier = Modifier.fillMaxWidth().height(6.dp),
+            color = color,
+            trackColor = Color.LightGray.copy(alpha = 0.3f)
+        )
     }
 }
