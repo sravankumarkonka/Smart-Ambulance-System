@@ -63,3 +63,18 @@ export const getAvailableAmbulances = async (req, res) => {
     return res.status(500).json({ error: 'Failed to retrieve available fleet.' });
   }
 };
+
+export const getAllEmergencies = async (req, res) => {
+  try {
+    const snapshot = await db.collection('emergencies').get();
+    const list = [];
+    snapshot.forEach(doc => {
+      list.push({ id: doc.id, ...doc.data() });
+    });
+    list.sort((a, b) => new Date(b.createdAt || b.timestamp || 0) - new Date(a.createdAt || a.timestamp || 0));
+    return res.status(200).json(list);
+  } catch (error) {
+    console.error('Error fetching all emergencies:', error);
+    return res.status(500).json({ error: 'Failed to retrieve emergencies.' });
+  }
+};

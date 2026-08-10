@@ -41,4 +41,54 @@ class AdminRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
+    suspend fun getAllEmergencies(): Result<List<com.example.smartambulance.data.model.Emergency>> {
+        return try {
+            val token = SessionManager.getFormattedToken()
+            val response = apiService.getAllEmergencies(token)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getPendingDrivers(): Result<List<com.example.smartambulance.data.model.User>> {
+        return try {
+            val token = SessionManager.getFormattedToken()
+            val response = apiService.getPendingAdmins(token) // or driver pending
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun approveDriver(uid: String): Result<String> {
+        return try {
+            val token = SessionManager.getFormattedToken()
+            val response = apiService.approveDriver(token, uid)
+            Result.success(response["message"] ?: "Driver approved.")
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun rejectDriver(uid: String): Result<String> {
+        return try {
+            val token = SessionManager.getFormattedToken()
+            val response = apiService.deleteDriver(token, uid)
+            Result.success(response["message"] ?: "Driver rejected.")
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getAuditLogs(): Result<List<com.example.smartambulance.data.model.AuditLog>> {
+        return try {
+            val token = SessionManager.getFormattedToken()
+            val response = apiService.getAuditLogs(token)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

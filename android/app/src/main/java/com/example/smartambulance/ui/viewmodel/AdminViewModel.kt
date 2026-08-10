@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.smartambulance.data.model.AdminStats
 import com.example.smartambulance.data.model.Ambulance
+import com.example.smartambulance.data.model.AuditLog
+import com.example.smartambulance.data.model.Emergency
+import com.example.smartambulance.data.model.User
 import com.example.smartambulance.data.repository.AdminRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,28 +36,57 @@ class AdminViewModel @Inject constructor(
     private val _ambulances = MutableStateFlow<List<Ambulance>>(emptyList())
     val ambulances: StateFlow<List<Ambulance>> = _ambulances.asStateFlow()
 
-    fun fetchStats() {
+    private val _emergencies = MutableStateFlow<List<Emergency>>(emptyList())
+    val emergencies: StateFlow<List<Emergency>> = _emergencies.asStateFlow()
+
+    private val _pendingDrivers = MutableStateFlow<List<User>>(emptyList())
+    val pendingDrivers: StateFlow<List<User>> = _pendingDrivers.asStateFlow()
+
+    private val _auditLogs = MutableStateFlow<List<AuditLog>>(emptyList())
+    val auditLogs: StateFlow<List<AuditLog>> = _auditLogs.asStateFlow()
+
+    fun fetchAllAdminData() {
         viewModelScope.launch {
             _uiState.value = AdminUiState.Loading
-            repository.getStats()
-                .onSuccess { data ->
-                    _stats.value = data
-                    _uiState.value = AdminUiState.Success("Stats loaded successfully")
+
+            repository.getStats().onSuccess { _stats.value = it }
+            repository.getAllAmbulances().onSuccess { _ambulances.value = it }
+            repository.getAllEmergencies().onSuccess { _emergencies.value = it }
+            repository.getPendingDrivers().onSuccess { _pendingDrivers.value = it }
+            repository.getAuditLogs().onSuccess { _auditLogs.value = it }
+
+            _uiState.value = AdminUiState.Idle
+        }
+    }
+
+    fun fetchStats() {
+        fetchAllAdminData()
+    }
+
+    fun approveDriver(uid: String) {
+        viewModelScope.launch {
+            _uiState.value = AdminUiState.Loading
+            repository.approveDriver(uid)
+                .onSuccess { msg ->
+                    _uiState.value = AdminUiState.Success(msg)
+                    fetchAllAdminData()
                 }
-                .onFailure { exception ->
-                    _uiState.value = AdminUiState.Error(exception.message ?: "Failed to fetch stats")
+                .onFailure { err ->
+                    _uiState.value = AdminUiState.Error(err.message ?: "Failed to approve driver")
                 }
         }
     }
 
-    fun fetchAmbulances() {
+    fun rejectDriver(uid: String) {
         viewModelScope.launch {
-            repository.getAllAmbulances()
-                .onSuccess { list ->
-                    _ambulances.value = list
+            _uiState.value = AdminUiState.Loading
+            repository.rejectDriver(uid)
+                .onSuccess { msg ->
+                    _uiState.value = AdminUiState.Success(msg)
+                    fetchAllAdminData()
                 }
-                .onFailure { exception ->
-                    _uiState.value = AdminUiState.Error(exception.message ?: "Failed to fetch ambulance list")
+                .onFailure { err ->
+                    _uiState.value = AdminUiState.Error(err.message ?: "Failed to reject driver")
                 }
         }
     }

@@ -123,6 +123,11 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<Ambulance>
 
+    @GET("admin/emergencies")
+    suspend fun getAllEmergencies(
+        @Header("Authorization") token: String
+    ): List<Emergency>
+
     // Hospitals
     @GET("hospitals")
     suspend fun getHospitals(
