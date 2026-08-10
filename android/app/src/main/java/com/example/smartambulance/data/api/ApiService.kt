@@ -136,4 +136,62 @@ interface ApiService {
         @Query("longitude") longitude: Double,
         @Query("severityLevel") severityLevel: String
     ): HospitalRecommendation
+
+    // Super Admin & Approvals
+    @GET("approval/pending-admins")
+    suspend fun getPendingAdmins(
+        @Header("Authorization") token: String
+    ): List<User>
+
+    @POST("approval/admin/{uid}/approve")
+    suspend fun approveAdmin(
+        @Header("Authorization") token: String,
+        @Path("uid") uid: String
+    ): Map<String, String>
+
+    @POST("approval/admin/{uid}/reject")
+    suspend fun rejectAdmin(
+        @Header("Authorization") token: String,
+        @Path("uid") uid: String
+    ): Map<String, String>
+
+    @POST("approval/admin/{uid}/suspend")
+    suspend fun suspendAdmin(
+        @Header("Authorization") token: String,
+        @Path("uid") uid: String
+    ): Map<String, String>
+
+    @DELETE("approval/admin/{uid}")
+    suspend fun deleteAdmin(
+        @Header("Authorization") token: String,
+        @Path("uid") uid: String
+    ): Map<String, String>
+
+    @GET("approval/all-users")
+    suspend fun getAllUsers(
+        @Header("Authorization") token: String
+    ): List<User>
+
+    @GET("approval/audit-logs")
+    suspend fun getAuditLogs(
+        @Header("Authorization") token: String
+    ): List<AuditLog>
+
+    @POST("approval/driver/{uid}/approve")
+    suspend fun approveDriver(
+        @Header("Authorization") token: String,
+        @Path("uid") uid: String
+    ): Map<String, String>
+
+    @POST("approval/driver/{uid}/suspend")
+    suspend fun suspendDriver(
+        @Header("Authorization") token: String,
+        @Path("uid") uid: String
+    ): Map<String, String>
+
+    @DELETE("approval/driver/{uid}")
+    suspend fun deleteDriver(
+        @Header("Authorization") token: String,
+        @Path("uid") uid: String
+    ): Map<String, String>
 }

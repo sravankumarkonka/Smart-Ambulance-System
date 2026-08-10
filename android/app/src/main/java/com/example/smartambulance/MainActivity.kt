@@ -16,6 +16,9 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
+    // Warm up backend connection (triggers Render server spin-up on app start)
+    com.example.smartambulance.data.api.RetrofitClient.probeAndSelectBestHost()
+
     enableEdgeToEdge()
     setContent {
       SmartAmbulanceTheme { Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) { MainNavigation() } }

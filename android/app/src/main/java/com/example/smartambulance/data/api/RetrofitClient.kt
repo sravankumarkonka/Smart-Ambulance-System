@@ -27,16 +27,10 @@ object RetrofitClient {
     @Volatile
     private var currentHost: String = "smart-ambulance-backend-4rbf.onrender.com"
 
-    private const val RENDER_BASE_URL = "https://smart-ambulance-backend-4rbf.onrender.com/api/"
-    
+    private const val RENDER_HOST = "smart-ambulance-backend-4rbf.onrender.com"
+
     private val candidateHosts = listOf(
-        "smart-ambulance-backend-4rbf.onrender.com",
-        "10.185.251.48",
-        "192.168.1.5",
-        "192.168.0.105",
-        "10.0.0.2",
-        "10.0.2.2",
-        "127.0.0.1"
+        RENDER_HOST
     )
 
     fun isEmulator(): Boolean {
@@ -60,6 +54,7 @@ object RetrofitClient {
     fun setPhysicalIp(ip: String) {
         if (ip.isNotBlank()) {
             currentHost = ip.trim()
+            hostConfirmed = true
             rebuildApiService()
             Log.d(TAG, "Backend host manually set to: $ip")
         }
@@ -76,15 +71,15 @@ object RetrofitClient {
         lastProbeTimeMs = now
 
         val hostsToProbe = if (isEmulator()) {
-            listOf("10.0.2.2") + candidateHosts.filter { it != "10.0.2.2" }
+            listOf("10.0.2.2", RENDER_HOST)
         } else {
-            candidateHosts
+            listOf(RENDER_HOST)
         }
 
         CoroutineScope(Dispatchers.IO).launch {
             for (candidate in hostsToProbe) {
                 try {
-                    val timeoutSeconds = if (candidate.contains("onrender.com")) 25L else 2L
+                    val timeoutSeconds = if (candidate.contains("onrender.com")) 45L else 3L
                     val probeClient = OkHttpClient.Builder()
                         .connectTimeout(timeoutSeconds, TimeUnit.SECONDS)
                         .readTimeout(timeoutSeconds, TimeUnit.SECONDS)
@@ -106,47 +101,43 @@ object RetrofitClient {
                     Log.w(TAG, "❌ Host $candidate unreachable: ${e.message}")
                 }
             }
-            hostConfirmed = false
-            Log.e(TAG, "⚠️ No backend host reachable.")
+            currentHost = RENDER_HOST
+            rebuildApiService()
+            Log.w(TAG, "⚠️ Probe completed — default host set to Render.")
         }
     }
 
     private val dynamicHostInterceptor = okhttp3.Interceptor { chain ->
         val request = chain.request()
+        val originalUrl = request.url
         try {
             chain.proceed(request)
         } catch (e: java.io.IOException) {
-            // If primary Render host timed out during cold start, retry once after a short pause
-            if (currentHost.contains("onrender.com")) {
-                Log.w(TAG, "Render request failed (${e.message}) — retrying in 2 seconds for server spin up...")
+            // If primary Render host timed out during cold start, retry once after a 3s pause
+            if (currentHost.contains("onrender.com") || originalUrl.host.contains("onrender.com")) {
+                Log.w(TAG, "Render request failed (${e.message}) — retrying once in 3s for server spin up...")
                 try {
-                    Thread.sleep(2000)
-                    return@Interceptor chain.proceed(request)
-                } catch (_: Exception) {}
+                    Thread.sleep(3000)
+                    val retryResponse = chain.proceed(request)
+                    if (retryResponse.isSuccessful) {
+                        hostConfirmed = true
+                    }
+                    return@Interceptor retryResponse
+                } catch (retryErr: Exception) {
+                    Log.e(TAG, "Render retry failed: ${retryErr.message}")
+                }
             }
 
-            if (hostConfirmed) {
-                hostConfirmed = false
-                Log.w(TAG, "Confirmed host $currentHost failed — marking unconfirmed")
-                throw e
-            }
-
-            val originalUrl = request.url
-            val failedHost = originalUrl.host
-            Log.w(TAG, "Request to $failedHost failed — trying 1 fallback host")
-
-            val nextCandidate = candidateHosts.firstOrNull { it != failedHost }
-            if (nextCandidate != null) {
+            // On emulator only, try 10.0.2.2 fallback
+            if (isEmulator() && !originalUrl.host.equals("10.0.2.2")) {
                 try {
-                    val scheme = if (nextCandidate.contains("onrender.com")) "https" else "http"
-                    val port = if (nextCandidate.contains("onrender.com")) 443 else PORT
-                    val newUrl = originalUrl.newBuilder().scheme(scheme).host(nextCandidate).port(port).build()
+                    val newUrl = originalUrl.newBuilder().scheme("http").host("10.0.2.2").port(PORT).build()
                     val newRequest = request.newBuilder().url(newUrl).build()
                     val response = chain.proceed(newRequest)
-                    currentHost = nextCandidate
+                    currentHost = "10.0.2.2"
                     hostConfirmed = true
                     rebuildApiService()
-                    Log.d(TAG, "✅ Switched to fallback host: $nextCandidate")
+                    Log.d(TAG, "✅ Switched to emulator fallback host: 10.0.2.2")
                     return@Interceptor response
                 } catch (_: Exception) {}
             }
@@ -161,9 +152,9 @@ object RetrofitClient {
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(dynamicHostInterceptor)
         .addInterceptor(loggingInterceptor)
-        .connectTimeout(60, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
-        .writeTimeout(60, TimeUnit.SECONDS)
+        .connectTimeout(45, TimeUnit.SECONDS)
+        .readTimeout(45, TimeUnit.SECONDS)
+        .writeTimeout(45, TimeUnit.SECONDS)
         .build()
 
     @Volatile

@@ -41,7 +41,7 @@ class AuthViewModel @Inject constructor(
                     _uiState.value = AuthUiState.Success(response.profile, response.profile.role)
                 }
                 .onFailure { exception ->
-                    _uiState.value = AuthUiState.Error(exception.message ?: "Login failed")
+                    _uiState.value = AuthUiState.Error(formatErrorMessage(exception, "Login failed"))
                 }
         }
     }
@@ -69,8 +69,20 @@ class AuthViewModel @Inject constructor(
                     _uiState.value = AuthUiState.Success(response.profile, response.profile.role)
                 }
                 .onFailure { exception ->
-                    _uiState.value = AuthUiState.Error(exception.message ?: "Registration failed")
+                    _uiState.value = AuthUiState.Error(formatErrorMessage(exception, "Registration failed"))
                 }
+        }
+    }
+
+    private fun formatErrorMessage(exception: Throwable, defaultMessage: String): String {
+        val msg = exception.message ?: ""
+        return when {
+            exception is java.net.SocketTimeoutException || msg.contains("timeout", ignoreCase = true) ->
+                "Server is waking up (Render cold-start). Please wait a few seconds and try again."
+            exception is java.net.ConnectException || msg.contains("Failed to connect", ignoreCase = true) ->
+                "Unable to connect to server. Please check your internet connection."
+            msg.isNotBlank() -> msg
+            else -> defaultMessage
         }
     }
 

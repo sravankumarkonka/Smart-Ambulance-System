@@ -49,6 +49,7 @@ fun RegisterScreen(
                 Toast.makeText(context, "Registration successful!", Toast.LENGTH_SHORT).show()
                 viewModel.resetState()
                 when (state.role) {
+                    "super_admin" -> onNavigate(SuperAdminDashboard)
                     "driver" -> onNavigate(DriverDashboard)
                     "admin" -> onNavigate(AdminDashboard)
                     else -> onNavigate(UserDashboard)

@@ -46,6 +46,7 @@ fun LoginScreen(
                 Toast.makeText(context, "Welcome back, ${state.user.name}!", Toast.LENGTH_SHORT).show()
                 viewModel.resetState()
                 when (state.role) {
+                    "super_admin" -> onNavigate(SuperAdminDashboard)
                     "admin" -> onNavigate(AdminDashboard)
                     "driver" -> onNavigate(DriverDashboard)
                     else -> onNavigate(UserDashboard)

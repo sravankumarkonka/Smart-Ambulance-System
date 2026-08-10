@@ -31,4 +31,7 @@ data class ActiveEmergency(val emergencyId: String) : NavKey
 data object AdminDashboard : NavKey
 
 @Serializable
+data object SuperAdminDashboard : NavKey
+
+@Serializable
 data object LiveMap : NavKey

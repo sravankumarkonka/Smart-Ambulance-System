@@ -18,7 +18,7 @@ fun MainNavigation() {
             entry<Login> {
                 LoginScreen(onNavigate = { navKey ->
                     // For dashboard targets, replace login to clear backstack
-                    if (navKey == UserDashboard || navKey == DriverDashboard || navKey == AdminDashboard) {
+                    if (navKey == UserDashboard || navKey == DriverDashboard || navKey == AdminDashboard || navKey == SuperAdminDashboard) {
                         backStack.removeLastOrNull()
                     }
                     backStack.add(navKey)
@@ -26,7 +26,7 @@ fun MainNavigation() {
             }
             entry<Register> {
                 RegisterScreen(onNavigate = { navKey ->
-                    if (navKey == UserDashboard || navKey == DriverDashboard) {
+                    if (navKey == UserDashboard || navKey == DriverDashboard || navKey == AdminDashboard || navKey == SuperAdminDashboard) {
                         backStack.removeLastOrNull() // Pop register screen
                         backStack.removeLastOrNull() // Pop login screen
                     }
@@ -73,6 +73,14 @@ fun MainNavigation() {
             }
             entry<AdminDashboard> {
                 AdminDashboardScreen(onNavigate = { navKey ->
+                    if (navKey == Login) {
+                        backStack.removeLastOrNull()
+                    }
+                    backStack.add(navKey)
+                })
+            }
+            entry<SuperAdminDashboard> {
+                SuperAdminDashboardScreen(onNavigate = { navKey ->
                     if (navKey == Login) {
                         backStack.removeLastOrNull()
                     }
