@@ -37,16 +37,22 @@ class AuthRepository @Inject constructor(
         email: String,
         phone: String,
         password: String,
-        role: String
+        role: String,
+        licenseNumber: String? = null,
+        vehicleNumber: String? = null,
+        experience: String? = null
     ): Result<AuthResponse> {
         return try {
             val response = apiService.register(
                 RegisterRequest(
-                    name.trim(),
-                    email.trim(),
-                    phone.trim(),
-                    password,
-                    if (role == "patient") "user" else role
+                    name = name.trim(),
+                    email = email.trim(),
+                    phone = phone.trim(),
+                    password = password,
+                    role = if (role == "patient") "user" else role,
+                    licenseNumber = licenseNumber,
+                    vehicleNumber = vehicleNumber,
+                    experience = experience
                 )
             )
             // Store details in session manager on successful register

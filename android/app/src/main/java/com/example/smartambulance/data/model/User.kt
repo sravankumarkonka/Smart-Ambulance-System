@@ -29,7 +29,10 @@ data class RegisterRequest(
     val email: String,
     val phone: String,
     val password: String,
-    val role: String
+    val role: String,
+    val licenseNumber: String? = null,
+    val vehicleNumber: String? = null,
+    val experience: String? = null
 )
 
 @Serializable

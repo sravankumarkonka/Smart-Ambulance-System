@@ -51,7 +51,10 @@ class AuthViewModel @Inject constructor(
         email: String,
         phone: String,
         password: String,
-        role: String
+        role: String,
+        licenseNumber: String? = null,
+        vehicleNumber: String? = null,
+        experience: String? = null
     ) {
         if (name.isBlank() || email.isBlank() || phone.isBlank() || password.isBlank()) {
             _uiState.value = AuthUiState.Error("All fields are required")
@@ -64,7 +67,7 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.value = AuthUiState.Loading
-            authRepository.register(name, email, phone, password, role)
+            authRepository.register(name, email, phone, password, role, licenseNumber, vehicleNumber, experience)
                 .onSuccess { response ->
                     _uiState.value = AuthUiState.Success(response.profile, response.profile.role)
                 }

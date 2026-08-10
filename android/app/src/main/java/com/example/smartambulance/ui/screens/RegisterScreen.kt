@@ -41,7 +41,10 @@ fun RegisterScreen(
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var role by remember { mutableStateOf("user") } // "user" or "driver"
+    var role by remember { mutableStateOf("user") } // "user" or "driver" or "admin"
+    var licenseNumber by remember { mutableStateOf("") }
+    var vehicleNumber by remember { mutableStateOf("") }
+    var experience by remember { mutableStateOf("") }
 
     LaunchedEffect(uiState) {
         when (val state = uiState) {
@@ -134,6 +137,35 @@ fun RegisterScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                 )
 
+                if (role == "driver") {
+                    OutlinedTextField(
+                        value = licenseNumber,
+                        onValueChange = { licenseNumber = it },
+                        label = { Text("Driving License No. (e.g. DL-123456789)") },
+                        leadingIcon = { Icon(Icons.Default.Badge, contentDescription = "License") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = vehicleNumber,
+                        onValueChange = { vehicleNumber = it },
+                        label = { Text("Vehicle Registration (e.g. KA-01-EA-1234)") },
+                        leadingIcon = { Icon(Icons.Default.DirectionsCar, contentDescription = "Vehicle") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = experience,
+                        onValueChange = { experience = it },
+                        label = { Text("Years of Experience (Optional)") },
+                        leadingIcon = { Icon(Icons.Default.WorkHistory, contentDescription = "Experience") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
@@ -184,7 +216,7 @@ fun RegisterScreen(
                     CircularProgressIndicator(modifier = Modifier.padding(8.dp))
                 } else {
                     Button(
-                        onClick = { viewModel.register(name, email, phone, password, role) },
+                        onClick = { viewModel.register(name, email, phone, password, role, licenseNumber, vehicleNumber, experience) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
