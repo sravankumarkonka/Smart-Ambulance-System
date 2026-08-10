@@ -63,6 +63,18 @@ class AdminViewModel @Inject constructor(
         fetchAllAdminData()
     }
 
+    fun fetchAmbulances() {
+        viewModelScope.launch {
+            repository.getAllAmbulances()
+                .onSuccess { list ->
+                    _ambulances.value = list
+                }
+                .onFailure { exception ->
+                    _uiState.value = AdminUiState.Error(exception.message ?: "Failed to fetch ambulance list")
+                }
+        }
+    }
+
     fun approveDriver(uid: String) {
         viewModelScope.launch {
             _uiState.value = AdminUiState.Loading
