@@ -8,13 +8,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -30,7 +28,6 @@ import com.example.smartambulance.ui.viewmodel.DriverUiState
 import com.example.smartambulance.ui.viewmodel.DriverViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
@@ -54,20 +51,13 @@ private fun formatTimestamp(ts: Any?): String {
             }
             else -> ts.toString()
         }
-    } catch (e: Exception) {
-        ""
-    }
+    } catch (_: Exception) { "" }
 }
 
 private fun getEmergencyIcon(type: String): String {
     return when (type.safeLower()) {
-        "accident" -> "🚗"
-        "cardiac" -> "❤\u200D🩹"
-        "respiratory" -> "🫁"
-        "stroke" -> "🧠"
-        "pregnancy" -> "👶"
-        "fire" -> "🔥"
-        else -> "🚨"
+        "accident" -> "🚗"; "cardiac" -> "❤\u200D🩹"; "respiratory" -> "🫁"
+        "stroke" -> "🧠"; "pregnancy" -> "👶"; "fire" -> "🔥"; else -> "🚨"
     }
 }
 
@@ -86,35 +76,28 @@ fun DriverDashboardScreen(
     var assignedToMeList by remember { mutableStateOf<List<Emergency>>(emptyList()) }
     var actionLoading by remember { mutableStateOf(false) }
 
+    // Vehicle readiness checklist
+    var hasOxygen by remember { mutableStateOf(false) }
+    var hasStretcher by remember { mutableStateOf(false) }
+    var hasFirstAid by remember { mutableStateOf(false) }
+
     val driverId = SessionManager.uid ?: ""
+    val driverName = SessionManager.name ?: "Driver"
     val ACTIVE_STATUSES = listOf("assigned", "accepted", "on_the_way", "reached", "arrived", "patient_picked", "hospital_reached")
 
-    // Listen to real-time Firestore updates for ALL emergencies
+    // Firestore real-time listener
     LaunchedEffect(Unit) {
         viewModel.fetchAmbulanceProfile()
-
         try {
-            val firestore = FirebaseFirestore.getInstance()
-            firestore.collection("emergencies")
+            FirebaseFirestore.getInstance().collection("emergencies")
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) return@addSnapshotListener
                     if (snapshot != null) {
                         val pendingList = mutableListOf<Emergency>()
                         val myActiveList = mutableListOf<Emergency>()
-
                         for (doc in snapshot.documents) {
-                            val id = doc.id
-                            val userId = doc.getString("userId") ?: ""
-                            val patientName = doc.getString("patientName") ?: "Emergency Patient"
-                            val type = doc.getString("emergencyType") ?: "General"
-                            val desc = doc.getString("description") ?: ""
-                            val lat = doc.getDouble("latitude") ?: 0.0
-                            val lng = doc.getDouble("longitude") ?: 0.0
-                            val severity = doc.getString("severityLevel") ?: "medium"
                             val status = doc.getString("status") ?: "pending"
                             val currentDriverId = doc.getString("driverId")
-                            val hospitalName = doc.getString("hospitalName")
-                            val image = doc.getString("imageUrl")
                             val createdAtRaw = doc.get("createdAt")
                             val createdAtStr = when (createdAtRaw) {
                                 is com.google.firebase.Timestamp -> {
@@ -125,34 +108,35 @@ fun DriverDashboardScreen(
                                 is String -> createdAtRaw
                                 else -> null
                             }
-
                             val emergency = Emergency(
-                                id = id,
-                                userId = userId,
-                                patientName = patientName,
-                                emergencyType = type,
-                                description = desc,
-                                latitude = lat,
-                                longitude = lng,
-                                severityLevel = severity,
+                                id = doc.id,
+                                userId = doc.getString("userId") ?: "",
+                                patientName = doc.getString("patientName") ?: "Emergency Patient",
+                                emergencyType = doc.getString("emergencyType") ?: "General",
+                                description = doc.getString("description") ?: "",
+                                latitude = doc.getDouble("latitude") ?: 0.0,
+                                longitude = doc.getDouble("longitude") ?: 0.0,
+                                severityLevel = doc.getString("severityLevel") ?: "medium",
                                 status = status,
                                 driverId = currentDriverId,
-                                hospitalName = hospitalName,
-                                imageUrl = image,
+                                hospitalName = doc.getString("hospitalName"),
+                                imageUrl = doc.getString("imageUrl"),
                                 createdAt = createdAtStr
                             )
+                            val assignedDriverId = doc.getString("assignedDriver")
+                            val statusLower = status.safeLower()
+                            val isPending = statusLower == "pending" || statusLower == "waiting"
+                            val hasNoDriver = currentDriverId.isNullOrBlank() || currentDriverId == "null"
+                            val isAssignedToMe = (currentDriverId == driverId || assignedDriverId == driverId) && ACTIVE_STATUSES.contains(statusLower)
 
-                            if (currentDriverId == driverId && ACTIVE_STATUSES.contains(status.safeLower())) {
+                            if (isAssignedToMe) {
                                 myActiveList.add(emergency)
-                            } else if (status.safeLower() == "pending") {
+                            } else if (isPending && hasNoDriver) {
                                 pendingList.add(emergency)
                             }
                         }
-
                         pendingEmergencies = pendingList
                         assignedToMeList = myActiveList
-
-                        // Load details for the first assigned emergency
                         if (myActiveList.isNotEmpty()) {
                             viewModel.fetchEmergencyDetails(myActiveList[0].id ?: "")
                         }
@@ -167,63 +151,44 @@ fun DriverDashboardScreen(
         when (val state = uiState) {
             is DriverUiState.Success -> {
                 Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
-                viewModel.resetState()
-                actionLoading = false
+                viewModel.resetState(); actionLoading = false
             }
             is DriverUiState.Error -> {
                 Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
-                viewModel.resetState()
-                actionLoading = false
+                viewModel.resetState(); actionLoading = false
             }
             else -> {}
         }
     }
 
-    // Merge: prefer ViewModel's activeEmergency (from API) over Firestore snapshot
     val activeEmergencyToDisplay = assignedEmergency ?: assignedToMeList.firstOrNull()
+    val isOnline = ambulance?.status?.safeLower() != "offline"
+    val isBusy = assignedToMeList.isNotEmpty()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Column {
-                        Text("Driver Dashboard", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                        Text(
-                            "Welcome back, ${SessionManager.name ?: "Driver"}",
-                            fontSize = 11.sp,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                        )
+                        Text("Driver Emergency Command", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                 },
                 actions = {
-                    // Response History button
-                    Button(
-                        onClick = { onNavigate(EmergencyHistory) },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                    ) {
-                        Text("📜 History", fontSize = 11.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                    IconButton(onClick = { onNavigate(EmergencyHistory) }) {
+                        Icon(Icons.Filled.DateRange, "History", tint = MaterialTheme.colorScheme.onPrimaryContainer)
                     }
-
-                    // Active Duty badge
-                    Box(
-                        modifier = Modifier
-                            .padding(start = 6.dp, end = 4.dp)
-                            .background(Color(0xFF22C55E), RoundedCornerShape(8.dp))
-                            .padding(horizontal = 8.dp, vertical = 6.dp)
-                    ) {
-                        Text("Active Duty", fontSize = 10.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                    IconButton(onClick = { /* Notifications placeholder */ }) {
+                        Icon(Icons.Filled.Notifications, "Notifications", tint = MaterialTheme.colorScheme.onPrimaryContainer)
                     }
-
-                    // Logout
+                    IconButton(onClick = { onNavigate(ProfileScreen) }) {
+                        Icon(Icons.Filled.Person, "Profile", tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                    }
                     IconButton(onClick = {
                         SessionManager.clearSession()
-                        Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
                         onNavigate(Login)
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Logout")
+                        Icon(Icons.Default.ExitToApp, "Logout", tint = MaterialTheme.colorScheme.onPrimaryContainer)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -239,101 +204,147 @@ fun DriverDashboardScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
                 .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // ─── SECTION 1: Assigned Emergencies Card ───
+            // ─── Driver Profile Card (matching web screenshot 2) ───
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(driverName, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Text("Callsign: ALS-Unit-01", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        // Status badge
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    if (isBusy) Color(0xFFDC2626) else if (isOnline) Color(0xFF22C55E) else Color(0xFF6B7280),
+                                    RoundedCornerShape(8.dp)
+                                )
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                if (isBusy) "BUSY" else if (isOnline) "ONLINE" else "OFFLINE",
+                                color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp
+                            )
+                        }
+                    }
+
+                    HorizontalDivider()
+
+                    // Go Online / Go Offline buttons
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Button(
+                            onClick = { viewModel.updateAmbulanceStatus("available") },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF22C55E))
+                        ) { Text("GO ONLINE", fontWeight = FontWeight.Bold, fontSize = 13.sp) }
+
+                        Button(
+                            onClick = { viewModel.updateAmbulanceStatus("offline") },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626))
+                        ) { Text("GO OFFLINE", fontWeight = FontWeight.Bold, fontSize = 13.sp) }
+                    }
+                }
+            }
+
+            // ─── Vehicle & Equipment Readiness Checklist ───
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Vehicle & Equipment Readiness Checklist", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = hasOxygen, onCheckedChange = { hasOxygen = it },
+                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFF22C55E)))
+                            Text("Medical Oxygen Supply", fontSize = 13.sp)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = hasStretcher, onCheckedChange = { hasStretcher = it })
+                            Text("Hydraulic Stretcher", fontSize = 13.sp)
+                        }
+                    }
+
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = hasFirstAid, onCheckedChange = { hasFirstAid = it })
+                            Text("First Aid & AED Kit", fontSize = 13.sp)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("✅", fontSize = 16.sp)
+                            Spacer(Modifier.width(4.dp))
+                            Text("GPS Telemetry Active", color = Color(0xFF22C55E), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        }
+                    }
+                }
+            }
+
+            // ─── Active Assignment Section ───
+            if (activeEmergencyToDisplay != null) {
+                val e = activeEmergencyToDisplay
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF2F2)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Text("Assigned Emergencies", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("🚨 Active Dispatch Assigned", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFFDC2626))
+                        Text("You have an active emergency. Respond immediately.", fontSize = 13.sp, color = Color(0xFF991B1B))
 
-                    if (activeEmergencyToDisplay != null) {
-                        val e = activeEmergencyToDisplay
-
-                        // Red header
-                        Text(
-                            "Active Dispatch Assigned",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp,
-                            color = Color(0xFFDC2626)
-                        )
-                        Text(
-                            "You have an active emergency request that needs your immediate response.",
-                            fontSize = 13.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-
-                        // Patient details inner card
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(10.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
-                            Column(
-                                modifier = Modifier.padding(14.dp),
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Text("Patient: ${e.patientName ?: "Unknown Patient"}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text("Patient: ${e.patientName ?: "Unknown"}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                 Text("Type: ${e.emergencyType.safeUpper()}", fontSize = 13.sp)
-                                Text("Description: ${e.description.ifEmpty { "No description provided" }}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("Description: ${e.description.ifEmpty { "No description" }}", fontSize = 13.sp, color = Color.Gray)
                             }
                         }
 
-                        // Action buttons
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             Button(
                                 onClick = { onNavigate(ActiveEmergency(e.id ?: "")) },
                                 modifier = Modifier.weight(1f),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626)),
                                 shape = RoundedCornerShape(8.dp)
-                            ) {
-                                Text("Go to Active Route", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color.White)
-                            }
+                            ) { Text("🚑 Go to Active Route", fontWeight = FontWeight.Bold, fontSize = 13.sp) }
 
                             OutlinedButton(
-                                onClick = {
-                                    actionLoading = true
-                                    viewModel.releaseEmergency(e.id ?: "")
-                                },
+                                onClick = { actionLoading = true; viewModel.releaseEmergency(e.id ?: "") },
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFDC2626)),
                                 border = BorderStroke(1.dp, Color(0xFFDC2626))
-                            ) {
-                                Text("Reject Assignment", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                            }
+                            ) { Text("Reject", fontWeight = FontWeight.Bold, fontSize = 13.sp) }
                         }
-                    } else {
-                        Text(
-                            "No active assignments.",
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
                     }
                 }
             }
 
-            // ─── SECTION 2: Incoming Emergency Broadcasts ───
-            Text("Incoming Emergency Broadcasts", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Text(
-                "Real-time requests awaiting ambulance assignment.",
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            // ─── Pending Emergencies in Queue ───
+            Text("Pending Emergencies in Queue", fontWeight = FontWeight.Bold, fontSize = 18.sp)
 
             if (pendingEmergencies.isEmpty()) {
-                // Empty state card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
@@ -358,115 +369,65 @@ fun DriverDashboardScreen(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            // Header: Emergency type + Awaiting Driver badge
+                        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            // Header: type + severity badge
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.Top
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Column {
-                                    Text(
-                                        text = "${getEmergencyIcon(e.emergencyType)} ${e.emergencyType.replaceFirstChar { c -> c.uppercase() }}",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp
-                                    )
-                                    val reportedTime = formatTimestamp(e.createdAt)
-                                    if (reportedTime.isNotEmpty()) {
-                                        Text(
-                                            "Reported: $reportedTime",
-                                            fontSize = 11.sp,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
+                                Text(
+                                    "${e.emergencyType.safeUpper()} REQUEST",
+                                    fontWeight = FontWeight.Bold, fontSize = 16.sp
+                                )
+                                val sevColor = when (e.severityLevel.safeLower()) {
+                                    "critical" -> Color(0xFFB91C1C); "high" -> Color(0xFFDC2626)
+                                    "medium" -> Color(0xFFD97706); else -> Color(0xFF16A34A)
                                 }
-
                                 Box(
                                     modifier = Modifier
-                                        .background(Color(0xFFFEF3C7), shape = RoundedCornerShape(6.dp))
+                                        .background(sevColor, RoundedCornerShape(6.dp))
                                         .padding(horizontal = 10.dp, vertical = 4.dp)
                                 ) {
-                                    Text(
-                                        "Awaiting Driver",
-                                        color = Color(0xFFD97706),
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
+                                    Text(e.severityLevel.safeUpper(), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
 
-                            // Details inner card
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(10.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(14.dp),
-                                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
-                                    Text("Patient Name: ${e.patientName ?: "Unknown Patient"}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                    Text("Description: ${e.description.ifEmpty { "No description provided" }}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            // Patient info
+                            Text("Patient Name: ${e.patientName ?: "Unknown"}", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
 
-                                    // Severity row
-                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                        Text("Severity:", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                        val sevColor = when (e.severityLevel.safeLower()) {
-                                            "critical" -> Color(0xFFB91C1C)
-                                            "high" -> Color(0xFFDC2626)
-                                            "medium" -> Color(0xFFD97706)
-                                            else -> Color(0xFF16A34A)
-                                        }
-                                        Box(
-                                            modifier = Modifier
-                                                .background(sevColor.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
-                                                .padding(horizontal = 6.dp, vertical = 2.dp)
-                                        ) {
-                                            Text(
-                                                e.severityLevel.replaceFirstChar { c -> c.uppercase() },
-                                                color = sevColor,
-                                                fontSize = 12.sp,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        }
+                            if (e.description.isNotEmpty()) {
+                                Text(e.description, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+
+                            // GPS Location
+                            Text(
+                                "GPS Location: ${String.format("%.1f", e.latitude)}, ${String.format("%.1f", e.longitude)}",
+                                fontSize = 12.sp, color = Color(0xFF0D9488)
+                            )
+
+                            // Accept Dispatch button
+                            Button(
+                                onClick = {
+                                    if (assignedToMeList.isNotEmpty()) {
+                                        Toast.makeText(context, "You already have an active assignment!", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        actionLoading = true
+                                        viewModel.assignToEmergency(e.id ?: "")
                                     }
-
-                                    Text(
-                                        "Coordinates: ${String.format("%.6f", e.latitude)}, ${String.format("%.6f", e.longitude)}",
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-
-                            // Accept Assignment button
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                                Button(
-                                    onClick = {
-                                        if (assignedToMeList.isNotEmpty()) {
-                                            Toast.makeText(context, "You already have an active emergency assignment!", Toast.LENGTH_SHORT).show()
-                                        } else {
-                                            actionLoading = true
-                                            viewModel.assignToEmergency(e.id ?: "")
-                                        }
-                                    },
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626)),
-                                    shape = RoundedCornerShape(8.dp),
-                                    enabled = !actionLoading,
-                                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
-                                ) {
-                                    Text("Accept Assignment", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color.White)
-                                }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B)),
+                                shape = RoundedCornerShape(8.dp),
+                                enabled = !actionLoading
+                            ) {
+                                Text("ACCEPT DISPATCH", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.Black)
                             }
                         }
                     }
                 }
             }
 
-            // Bottom spacer for scroll padding
             Spacer(modifier = Modifier.height(20.dp))
         }
     }

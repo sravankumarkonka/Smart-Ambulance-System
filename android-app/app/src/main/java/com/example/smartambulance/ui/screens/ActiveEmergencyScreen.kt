@@ -254,105 +254,16 @@ fun ActiveEmergencyScreen(
                 ) {
                     val driverLat = currentLat ?: ambulance?.latitude ?: 12.9716
                     val driverLng = currentLng ?: ambulance?.longitude ?: 77.5946
-                    val patientLatLng = LatLng(e.latitude, e.longitude)
-                    val driverLatLng = LatLng(driverLat, driverLng)
 
-                    val cameraPositionState = rememberCameraPositionState {
-                        position = CameraPosition.fromLatLngZoom(driverLatLng, 15f)
-                    }
-
-                    LaunchedEffect(driverLat, driverLng) {
-                        try {
-                            val boundsBuilder = LatLngBounds.builder()
-                            boundsBuilder.include(patientLatLng)
-                            boundsBuilder.include(driverLatLng)
-                            if (e.hospitalLatitude != null && e.hospitalLongitude != null) {
-                                boundsBuilder.include(LatLng(e.hospitalLatitude, e.hospitalLongitude))
-                            }
-                            cameraPositionState.animate(
-                                CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 120)
-                            )
-                        } catch (_: Exception) {
-                            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(driverLatLng, 15f))
-                        }
-                    }
-
-                    GoogleMap(
-                        modifier = Modifier.fillMaxSize(),
-                        cameraPositionState = cameraPositionState,
-                        uiSettings = MapUiSettings(zoomControlsEnabled = true, compassEnabled = true)
-                    ) {
-                        Marker(
-                            state = MarkerState(position = patientLatLng),
-                            title = "📍 Patient: ${e.patientName}",
-                            snippet = "Emergency Location"
-                        )
-                        Marker(
-                            state = MarkerState(position = driverLatLng),
-                            title = "🚑 Your Ambulance",
-                            snippet = if (isLiveTracking) "Live GPS • ${currentSpeed.toInt()} km/h" else "Position"
-                        )
-                        if (e.hospitalLatitude != null && e.hospitalLongitude != null) {
-                            Marker(
-                                state = MarkerState(position = LatLng(e.hospitalLatitude, e.hospitalLongitude)),
-                                title = "🏥 ${e.hospitalName ?: "Hospital"}",
-                                snippet = "Destination"
-                            )
-                        }
-                        val polylinePoints = buildList {
-                            add(driverLatLng)
-                            add(patientLatLng)
-                            if (e.hospitalLatitude != null && e.hospitalLongitude != null) {
-                                add(LatLng(e.hospitalLatitude, e.hospitalLongitude))
-                            }
-                        }
-                        Polyline(points = polylinePoints, color = Color(0xFF1565C0), width = 14f)
-                    }
-
-                    // Navigation header card
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                            .align(Alignment.TopCenter),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xCC0D47A1))
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                Icon(Icons.Default.Navigation, null, tint = Color.White, modifier = Modifier.size(24.dp))
-                                Column {
-                                    Text(
-                                        text = when (e.status) {
-                                            "assigned", "accepted", "on_the_way" -> "Navigate to Patient"
-                                            "reached", "arrived", "patient_picked" -> "Head to Hospital"
-                                            "hospital_reached" -> "Arrived at Hospital"
-                                            else -> "Emergency Active"
-                                        },
-                                        color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp
-                                    )
-                                    if (isLiveTracking) {
-                                        Text("Live GPS • Bearing ${currentBearing.toInt()}°", color = Color.White.copy(alpha = 0.8f), fontSize = 10.sp)
-                                    }
-                                }
-                            }
-                            if (isLiveTracking) {
-                                Box(
-                                    modifier = Modifier
-                                        .size((10 * pulseScale).dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0xFF4CAF50))
-                                )
-                            }
-                        }
-                    }
+                    ActiveEmergencyMapView(
+                        emergency = e,
+                        driverLat = driverLat,
+                        driverLng = driverLng,
+                        isLiveTracking = isLiveTracking,
+                        currentSpeed = currentSpeed,
+                        currentBearing = currentBearing,
+                        pulseScale = pulseScale
+                    )
                 }
 
                 // ── CONTROLS (40% of screen) ─────────────────────────────────
@@ -506,3 +417,117 @@ private fun ActiveStatusButton(label: String, bgColor: Color, onClick: () -> Uni
         Text(label, fontWeight = FontWeight.Bold, fontSize = 14.sp, letterSpacing = 0.5.sp)
     }
 }
+
+@Composable
+private fun ActiveEmergencyMapView(
+    emergency: com.example.smartambulance.data.model.Emergency,
+    driverLat: Double,
+    driverLng: Double,
+    isLiveTracking: Boolean,
+    currentSpeed: Float,
+    currentBearing: Float,
+    pulseScale: Float
+) {
+    val patientLatLng = LatLng(emergency.latitude, emergency.longitude)
+    val driverLatLng = LatLng(driverLat, driverLng)
+
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(driverLatLng, 15f)
+    }
+
+    LaunchedEffect(driverLat, driverLng) {
+        try {
+            val boundsBuilder = LatLngBounds.builder()
+            boundsBuilder.include(patientLatLng)
+            boundsBuilder.include(driverLatLng)
+            if (emergency.hospitalLatitude != null && emergency.hospitalLongitude != null) {
+                boundsBuilder.include(LatLng(emergency.hospitalLatitude, emergency.hospitalLongitude))
+            }
+            cameraPositionState.animate(
+                CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 120)
+            )
+        } catch (_: Exception) {
+            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(driverLatLng, 15f))
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraPositionState,
+            uiSettings = MapUiSettings(zoomControlsEnabled = true, compassEnabled = true)
+        ) {
+            Marker(
+                state = MarkerState(position = patientLatLng),
+                title = "📍 Patient: ${emergency.patientName}",
+                snippet = "Emergency Location"
+            )
+            Marker(
+                state = MarkerState(position = driverLatLng),
+                title = "🚑 Your Ambulance",
+                snippet = if (isLiveTracking) "Live GPS • ${currentSpeed.toInt()} km/h" else "Position"
+            )
+            if (emergency.hospitalLatitude != null && emergency.hospitalLongitude != null) {
+                Marker(
+                    state = MarkerState(position = LatLng(emergency.hospitalLatitude, emergency.hospitalLongitude)),
+                    title = "🏥 ${emergency.hospitalName ?: "Hospital"}",
+                    snippet = "Destination"
+                )
+            }
+            val polylinePoints = buildList {
+                add(driverLatLng)
+                add(patientLatLng)
+                if (emergency.hospitalLatitude != null && emergency.hospitalLongitude != null) {
+                    add(LatLng(emergency.hospitalLatitude, emergency.hospitalLongitude))
+                }
+            }
+            Polyline(points = polylinePoints, color = Color(0xFF1565C0), width = 14f)
+        }
+
+        // Navigation header card
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+                .align(Alignment.TopCenter),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xCC0D47A1))
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Icon(Icons.Default.Navigation, null, tint = Color.White, modifier = Modifier.size(24.dp))
+                    Column {
+                        Text(
+                            text = when (emergency.status) {
+                                "assigned", "accepted", "on_the_way" -> "Navigate to Patient"
+                                "reached", "arrived", "patient_picked" -> "Head to Hospital"
+                                "hospital_reached" -> "Arrived at Hospital"
+                                else -> "Emergency Active"
+                            },
+                            color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp
+                        )
+                        if (isLiveTracking) {
+                            Text("Live GPS • Bearing ${currentBearing.toInt()}°", color = Color.White.copy(alpha = 0.8f), fontSize = 10.sp)
+                        }
+                    }
+                }
+                if (isLiveTracking) {
+                    Box(
+                        modifier = Modifier
+                            .size((10 * pulseScale).dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF4CAF50))
+                    )
+                }
+            }
+        }
+    }
+}
+

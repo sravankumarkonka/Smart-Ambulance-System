@@ -74,6 +74,9 @@ fun SuperAdminDashboardScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { onNavigate(ProfileScreen) }) {
+                        Icon(Icons.Default.Person, contentDescription = "Profile")
+                    }
                     IconButton(onClick = { viewModel.fetchAllData() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                     }

@@ -31,7 +31,7 @@ fun EmergencyHistoryScreen(
     val history by viewModel.history.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.fetchHistory()
+        viewModel.startPatientRealtimeListener()
     }
 
     Scaffold(
@@ -75,14 +75,20 @@ fun EmergencyHistoryScreen(
                         else -> Color(0xFF2E7D32)
                     }
 
-                    val isTrackable = emergency.id != null && emergency.status != "completed" && emergency.status != "cancelled"
+                    val isActive = com.example.smartambulance.data.model.isStatusActive(emergency.status)
+                    val isTrackable = emergency.id != null && isActive
+
                     Card(
                         onClick = {
-                            emergency.id?.let { id -> onNavigate(TrackAmbulance(id)) }
+                            if (isTrackable && emergency.id != null) {
+                                onNavigate(TrackAmbulance(emergency.id))
+                            }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isActive) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surfaceVariant
+                        )
                     ) {
                         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Row(
@@ -121,17 +127,37 @@ fun EmergencyHistoryScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
+                                val statusColor = when {
+                                    emergency.status.equals("completed", true) -> Color(0xFF2E7D32)
+                                    emergency.status.equals("cancelled", true) || emergency.status.equals("canceled", true) -> Color(0xFFC62828)
+                                    isActive -> Color(0xFF1565C0)
+                                    else -> Color.Gray
+                                }
+
                                 Text(
-                                    text = "Status: ${emergency.status.uppercase()}",
+                                    text = "Status: ${emergency.status.replace("_", " ").uppercase()}",
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 12.sp,
-                                    color = if (emergency.status == "completed") Color(0xFF2E7D32) else Color.Red
+                                    color = statusColor
                                 )
                                 Text(
                                     text = emergency.createdAt?.take(16)?.replace("T", " ") ?: "",
                                     fontSize = 11.sp,
                                     color = Color.Gray
                                 )
+                            }
+
+                            if (isTrackable) {
+                                Button(
+                                    onClick = { emergency.id?.let { id -> onNavigate(TrackAmbulance(id)) } },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 4.dp),
+                                    shape = RoundedCornerShape(6.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                                ) {
+                                    Text("TRACK EMERGENCY", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                }
                             }
                         }
                     }

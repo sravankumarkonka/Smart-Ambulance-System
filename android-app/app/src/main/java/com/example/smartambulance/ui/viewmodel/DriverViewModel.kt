@@ -123,7 +123,8 @@ class DriverViewModel @Inject constructor(
     }
 
     fun releaseEmergency(emergencyId: String) {
-        val driverId = SessionManager.uid ?: return
+        val driverId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+            ?: SessionManager.uid ?: return
         viewModelScope.launch {
             _uiState.value = DriverUiState.Loading
             driverRepository.releaseEmergency(emergencyId, driverId)
@@ -137,6 +138,21 @@ class DriverViewModel @Inject constructor(
                 }
         }
     }
+
+    fun rejectEmergency(emergencyId: String) {
+        val driverId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+            ?: SessionManager.uid ?: return
+        viewModelScope.launch {
+            driverRepository.rejectEmergency(emergencyId, driverId)
+                .onSuccess {
+                    _uiState.value = DriverUiState.Success("Emergency call declined")
+                }
+                .onFailure { exception ->
+                    _uiState.value = DriverUiState.Error(exception.message ?: "Failed to decline emergency")
+                }
+        }
+    }
+
 
     fun updateLocation(latitude: Double, longitude: Double, emergencyId: String? = null) {
         val driverId = SessionManager.uid ?: return
@@ -165,6 +181,14 @@ class DriverViewModel @Inject constructor(
                     _uiState.value = DriverUiState.Error(exception.message ?: "Failed to fetch emergency details")
                 }
         }
+    }
+
+    fun setActiveEmergency(emergency: Emergency) {
+        _activeEmergency.value = emergency
+    }
+
+    fun clearActiveEmergency() {
+        _activeEmergency.value = null
     }
 
     fun resetState() {

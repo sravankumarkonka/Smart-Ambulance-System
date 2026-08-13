@@ -35,3 +35,9 @@ data object SuperAdminDashboard : NavKey
 
 @Serializable
 data object LiveMap : NavKey
+
+@Serializable
+data object DriverHistory : NavKey
+
+@Serializable
+data object ProfileScreen : NavKey

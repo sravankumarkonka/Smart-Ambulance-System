@@ -124,6 +124,9 @@ fun AdminDashboardScreen(
                     IconButton(onClick = { onNavigate(LiveMap) }) {
                         Icon(Icons.Default.Map, contentDescription = "View Live Map", tint = MaterialTheme.colorScheme.primary)
                     }
+                    IconButton(onClick = { onNavigate(ProfileScreen) }) {
+                        Icon(Icons.Default.Person, contentDescription = "Profile")
+                    }
                     IconButton(onClick = { viewModel.fetchAllAdminData() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                     }

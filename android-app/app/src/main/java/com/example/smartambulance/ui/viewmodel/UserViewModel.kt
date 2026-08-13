@@ -5,7 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.smartambulance.data.SessionManager
 import com.example.smartambulance.data.model.Emergency
 import com.example.smartambulance.data.model.HospitalRecommendation
+import com.example.smartambulance.data.model.isStatusActive
+import com.example.smartambulance.data.model.isStatusHistory
 import com.example.smartambulance.data.repository.EmergencyRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ListenerRegistration
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,11 +35,43 @@ class UserViewModel @Inject constructor(
     private val _history = MutableStateFlow<List<Emergency>>(emptyList())
     val history: StateFlow<List<Emergency>> = _history.asStateFlow()
 
+    private val _activeEmergencies = MutableStateFlow<List<Emergency>>(emptyList())
+    val activeEmergencies: StateFlow<List<Emergency>> = _activeEmergencies.asStateFlow()
+
     private val _activeEmergency = MutableStateFlow<Emergency?>(null)
     val activeEmergency: StateFlow<Emergency?> = _activeEmergency.asStateFlow()
 
     private val _hospitalRecommendation = MutableStateFlow<HospitalRecommendation?>(null)
     val hospitalRecommendation: StateFlow<HospitalRecommendation?> = _hospitalRecommendation.asStateFlow()
+
+    private var patientListenerRegistration: ListenerRegistration? = null
+
+    init {
+        startPatientRealtimeListener()
+    }
+
+    fun startPatientRealtimeListener() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: SessionManager.uid ?: return
+        patientListenerRegistration?.remove()
+        patientListenerRegistration = repository.listenToPatientEmergencies(
+            userId = uid,
+            onSuccess = { list ->
+                val active = list.filter { isStatusActive(it.status) }
+                val hist = list.filter { isStatusHistory(it.status) }
+                _activeEmergencies.value = active
+                _history.value = hist
+                _activeEmergency.value = active.firstOrNull()
+            },
+            onError = {
+                fetchHistory()
+            }
+        )
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        patientListenerRegistration?.remove()
+    }
 
     fun reportEmergency(
         patientName: String,
@@ -69,8 +105,7 @@ class UserViewModel @Inject constructor(
             ).onSuccess { response ->
                 _uiState.value = UserUiState.Success(response.id)
                 fetchActiveEmergency(response.id)
-                // Auto-refresh history so the new emergency shows up immediately
-                fetchHistory()
+                startPatientRealtimeListener()
                 if (imageBytes != null) {
                     launch {
                         repository.uploadEmergencyImage(response.id, imageBytes)
@@ -82,17 +117,16 @@ class UserViewModel @Inject constructor(
         }
     }
 
-
     fun fetchHistory() {
-        val userId = SessionManager.uid ?: return
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: SessionManager.uid ?: return
         viewModelScope.launch {
             repository.getEmergencyHistory(userId)
                 .onSuccess { list ->
-                    _history.value = list
-                    val active = list.firstOrNull { it.status != "completed" && it.status != "cancelled" }
-                    if (active != null) {
-                        _activeEmergency.value = active
-                    }
+                    val active = list.filter { isStatusActive(it.status) }
+                    val hist = list.filter { isStatusHistory(it.status) }
+                    _activeEmergencies.value = active
+                    _history.value = hist
+                    _activeEmergency.value = active.firstOrNull()
                 }
                 .onFailure { exception ->
                     _uiState.value = UserUiState.Error(exception.message ?: "Failed to load history")
@@ -119,7 +153,7 @@ class UserViewModel @Inject constructor(
                 .onSuccess {
                     _uiState.value = UserUiState.Success("Emergency cancelled successfully")
                     _activeEmergency.value = null
-                    fetchHistory()
+                    startPatientRealtimeListener()
                 }
                 .onFailure { exception ->
                     _uiState.value = UserUiState.Error(exception.message ?: "Failed to cancel emergency")
@@ -134,7 +168,6 @@ class UserViewModel @Inject constructor(
                     _hospitalRecommendation.value = recommendation
                 }
                 .onFailure { exception ->
-                    // Set fallback recommendation so UI is NEVER stuck on loading spinner
                     val defaultHospital = com.example.smartambulance.data.model.Hospital(
                         id = "hosp_1",
                         name = "City Central General Hospital",
@@ -171,7 +204,6 @@ class UserViewModel @Inject constructor(
 
     fun uploadAccidentImage(id: String, imageBytes: ByteArray) {
         viewModelScope.launch {
-            // Image upload is disabled (Firebase Storage unavailable on Spark plan)
             repository.uploadEmergencyImage(id, imageBytes)
                 .onSuccess {
                     _uiState.value = UserUiState.Success("Notice: Images are stored locally (Storage disabled on Spark plan).")
@@ -183,3 +215,4 @@ class UserViewModel @Inject constructor(
         _uiState.value = UserUiState.Idle
     }
 }
+

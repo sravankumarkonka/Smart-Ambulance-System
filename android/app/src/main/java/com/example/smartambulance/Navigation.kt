@@ -43,7 +43,13 @@ fun MainNavigation() {
             }
             entry<ReportEmergency> {
                 ReportEmergencyScreen(
-                    onNavigate = { navKey -> backStack.add(navKey) },
+                    onNavigate = { navKey ->
+                        if (navKey is TrackAmbulance) {
+                            // Replace ReportEmergency with TrackAmbulance so back goes to dashboard
+                            backStack.removeLastOrNull()
+                        }
+                        backStack.add(navKey)
+                    },
                     onBack = { backStack.removeLastOrNull() }
                 )
             }
@@ -67,6 +73,11 @@ fun MainNavigation() {
                     }
                     backStack.add(navKey)
                 })
+            }
+            entry<DriverHistory> {
+                DriverHistoryScreen(
+                    onNavigate = { _ -> backStack.removeLastOrNull() }
+                )
             }
             entry<ActiveEmergency> { key ->
                 ActiveEmergencyScreen(
@@ -94,6 +105,17 @@ fun MainNavigation() {
             entry<LiveMap> {
                 LiveMapScreen(
                     onNavigate = { navKey -> backStack.add(navKey) },
+                    onBack = { backStack.removeLastOrNull() }
+                )
+            }
+            entry<ProfileScreen> {
+                ProfileScreen(
+                    onNavigate = { navKey ->
+                        if (navKey == Login) {
+                            backStack.removeLastOrNull()
+                        }
+                        backStack.add(navKey)
+                    },
                     onBack = { backStack.removeLastOrNull() }
                 )
             }

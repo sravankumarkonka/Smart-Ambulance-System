@@ -38,12 +38,11 @@ fun UserDashboardScreen(
     val activeEmergency by viewModel.activeEmergency.collectAsStateWithLifecycle()
     val name = SessionManager.name ?: "Patient"
 
-    // Load active emergencies or history on launch
+    // Start real-time patient listener on launch
     LaunchedEffect(Unit) {
-        viewModel.fetchHistory()
-        // If there's an active emergency, we can check for it by querying
-        // the last item in history that has a non-terminal status
+        viewModel.startPatientRealtimeListener()
     }
+
 
     Scaffold(
         topBar = {
@@ -185,69 +184,94 @@ fun UserDashboardScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Active request tracker
-            activeEmergency?.let { emergency ->
-                if (emergency.status != "completed" && emergency.status != "cancelled") {
-                    Text(
-                        text = "Active Request Tracker",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.align(Alignment.Start),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+            val currentActive = activeEmergency?.takeIf { com.example.smartambulance.data.model.isStatusActive(it.status) }
 
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            currentActive?.let { emergency ->
+                val isWaiting = com.example.smartambulance.data.model.isStatusPending(emergency.status)
+                val statusHeader = when {
+                    isWaiting -> "Emergency Request Submitted"
+                    emergency.status.equals("reached", true) || emergency.status.equals("arrived", true) -> "Ambulance Arrived at Scene"
+                    emergency.status.equals("patient_picked", true) || emergency.status.equals("hospital_reached", true) -> "En Route to Hospital"
+                    else -> "Ambulance En Route"
+                }
+
+                Text(
+                    text = "Active Request Tracker",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.Start),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Status: ${emergency.status.uppercase()}",
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                                Text(
-                                    text = "Type: ${emergency.emergencyType.uppercase()}",
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-                                )
-                            }
-
                             Text(
-                                text = "Patient: ${emergency.patientName}",
+                                text = statusHeader,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
+                            Text(
+                                text = emergency.emergencyType.uppercase(),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                            )
+                        }
 
-                            if (emergency.driverName != null) {
-                                Text(
-                                    text = "Ambulance: ${emergency.driverName} (${emergency.driverPhone})",
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            } else {
-                                Text(
-                                    text = "Searching for nearest available ambulance...",
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
-                                    fontSize = 13.sp
-                                )
-                            }
+                        Text(
+                            text = "Status: ${emergency.status.replace("_", " ").uppercase()}",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f)
+                        )
 
-                            Button(
-                                onClick = { onNavigate(TrackAmbulance(emergency.id ?: "")) },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 8.dp),
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
-                                Text("TRACK LIVE AMBULANCE")
-                            }
+                        Text(
+                            text = "Patient: ${emergency.patientName}",
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+
+                        if (!emergency.driverName.isNullOrBlank()) {
+                            Text(
+                                text = "Driver: ${emergency.driverName} ${if (!emergency.driverPhone.isNullOrBlank()) "(${emergency.driverPhone})" else ""}",
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        } else {
+                            Text(
+                                text = "Searching for nearest available ambulance...",
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                                fontSize = 13.sp
+                            )
+                        }
+
+                        if (!emergency.hospitalName.isNullOrBlank()) {
+                            Text(
+                                text = "Destination: ${emergency.hospitalName}",
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f)
+                            )
+                        }
+
+                        Button(
+                            onClick = { onNavigate(TrackAmbulance(emergency.id ?: "")) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(if (isWaiting) "TRACK EMERGENCY" else "TRACK AMBULANCE")
                         }
                     }
                 }

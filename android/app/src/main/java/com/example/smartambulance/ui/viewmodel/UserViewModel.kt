@@ -16,7 +16,7 @@ import javax.inject.Inject
 sealed interface UserUiState {
     object Idle : UserUiState
     object Loading : UserUiState
-    data class Success(val message: String) : UserUiState
+    data class Success(val message: String, val emergencyId: String? = null) : UserUiState
     data class Error(val message: String) : UserUiState
 }
 
@@ -66,7 +66,10 @@ class UserViewModel @Inject constructor(
                 hospitalLatitude,
                 hospitalLongitude
             ).onSuccess { response ->
-                _uiState.value = UserUiState.Success("Emergency reported successfully with ID: ${response.id}")
+                _uiState.value = UserUiState.Success(
+                    message = "Emergency reported successfully! Dispatching nearest ambulance...",
+                    emergencyId = response.id
+                )
                 // Retrieve the newly created emergency to track it
                 fetchActiveEmergency(response.id)
             }.onFailure { exception ->

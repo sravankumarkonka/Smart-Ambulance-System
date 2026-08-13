@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.smartambulance.data.SessionManager
 import com.example.smartambulance.data.model.Emergency
-import com.example.smartambulance.data.model.toEmergency
 import com.google.firebase.firestore.FirebaseFirestore
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,8 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 fun DriverHistoryScreen(
     onNavigate: (Any) -> Unit
 ) {
-    val driverId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
-        ?: SessionManager.uid ?: ""
+    val driverId = SessionManager.uid ?: ""
     val db = remember { FirebaseFirestore.getInstance() }
     var historyList by remember { mutableStateOf<List<Emergency>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
@@ -41,15 +39,33 @@ fun DriverHistoryScreen(
             .addSnapshotListener { snapshot, error ->
                 if (error == null && snapshot != null) {
                     val list = snapshot.documents.mapNotNull { doc ->
-                        val item = doc.toEmergency() ?: return@mapNotNull null
-                        val currentDriverId = doc.getString("driverId") ?: doc.getString("assignedDriver")
-                        if (currentDriverId != driverId) {
+                        val d = doc.data ?: return@mapNotNull null
+                        val currentDriverId = d["driverId"] as? String
+                        val assignedDriverId = d["assignedDriver"] as? String
+                        if (currentDriverId != driverId && assignedDriverId != driverId) {
                             return@mapNotNull null
                         }
-                        if (!com.example.smartambulance.data.model.isStatusHistory(item.status)) {
-                            return@mapNotNull null
+
+                        val createdAtRaw = d["createdAt"] ?: d["timestamp"]
+                        val createdAtStr = when (createdAtRaw) {
+                            is com.google.firebase.Timestamp -> createdAtRaw.toDate().toString()
+                            is String -> createdAtRaw
+                            else -> null
                         }
-                        item
+
+                        Emergency(
+                            id = doc.id,
+                            userId = d["userId"] as? String ?: "",
+                            patientName = d["patientName"] as? String ?: "Patient",
+                            emergencyType = d["emergencyType"] as? String ?: "general",
+                            description = d["description"] as? String ?: "",
+                            latitude = (d["latitude"] as? Number)?.toDouble() ?: 0.0,
+                            longitude = (d["longitude"] as? Number)?.toDouble() ?: 0.0,
+                            severityLevel = d["severityLevel"] as? String ?: d["severity"] as? String ?: "medium",
+                            status = d["status"] as? String ?: "pending",
+                            hospitalName = d["hospitalName"] as? String ?: d["hospital"] as? String,
+                            createdAt = createdAtStr
+                        )
                     }
                     historyList = list.sortedByDescending { it.createdAt ?: "" }
                 }
@@ -58,7 +74,6 @@ fun DriverHistoryScreen(
 
         onDispose { listener.remove() }
     }
-
 
     Scaffold(
         topBar = {

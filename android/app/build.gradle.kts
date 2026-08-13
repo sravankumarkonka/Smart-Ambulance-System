@@ -109,6 +109,7 @@ dependencies {
   // Google Maps
   implementation(libs.google.maps.compose)
   implementation(libs.play.services.maps)
+  implementation("com.google.android.gms:play-services-location:21.3.0")
 
   // Serialization
   implementation(libs.kotlinx.serialization.json)

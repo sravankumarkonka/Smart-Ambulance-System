@@ -69,7 +69,9 @@ class EmergencyRepository @Inject constructor(
         hospitalLongitude: Double? = null
     ): Result<CreateEmergencyResponse> {
         val token = SessionManager.getFormattedToken()
-        val userId = SessionManager.uid ?: return Result.failure(Exception("You are not logged in. Please log in and try again."))
+        val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+            ?: SessionManager.uid
+            ?: return Result.failure(Exception("You are not logged in. Please log in and try again."))
 
         // Try backend first — but skip if we already know host is unreachable
         if (RetrofitClient.isHostConfirmed()) {
@@ -167,30 +169,7 @@ class EmergencyRepository @Inject constructor(
                         .addOnCompleteListener { task -> cont.resume(if (task.isSuccessful) task.result else null) }
                 }
                 if (docSnap != null && docSnap.exists()) {
-                    val d = docSnap.data ?: return Result.failure(Exception("Emergency not found"))
-                    val emergency = Emergency(
-                        id = docSnap.id,
-                        userId = d["userId"] as? String ?: "",
-                        patientName = d["patientName"] as? String ?: "",
-                        emergencyType = d["emergencyType"] as? String ?: "accident",
-                        description = d["description"] as? String ?: "",
-                        latitude = (d["latitude"] as? Number)?.toDouble() ?: 0.0,
-                        longitude = (d["longitude"] as? Number)?.toDouble() ?: 0.0,
-                        severityLevel = d["severityLevel"] as? String ?: "medium",
-                        status = d["status"] as? String ?: "Waiting",
-                        hospitalName = d["hospitalName"] as? String,
-                        hospitalLatitude = (d["hospitalLatitude"] as? Number)?.toDouble(),
-                        hospitalLongitude = (d["hospitalLongitude"] as? Number)?.toDouble(),
-                        driverId = d["driverId"] as? String,
-                        driverName = d["driverName"] as? String,
-                        driverPhone = d["driverPhone"] as? String,
-                        driverLatitude = (d["driverLatitude"] as? Number)?.toDouble(),
-                        driverLongitude = (d["driverLongitude"] as? Number)?.toDouble(),
-                        driverSpeed = (d["driverSpeed"] as? Number)?.toDouble(),
-                        driverHeading = (d["driverHeading"] as? Number)?.toDouble(),
-                        createdAt = d["createdAt"] as? String,
-                        imageUrl = d["imageUrl"] as? String
-                    )
+                    val emergency = docSnap.toEmergency() ?: return Result.failure(Exception("Emergency not found"))
                     Result.success(emergency)
                 } else {
                     Result.failure(Exception("Emergency not found"))
@@ -200,6 +179,37 @@ class EmergencyRepository @Inject constructor(
             }
         }
     }
+
+    fun listenToPatientEmergencies(
+        userId: String,
+        onSuccess: (List<Emergency>) -> Unit,
+        onError: (Exception) -> Unit
+    ): com.google.firebase.firestore.ListenerRegistration {
+        val userEmail = SessionManager.email ?: ""
+        return db.collection("emergencies")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e(TAG, "Error in patient emergencies listener: ${error.message}")
+                    onError(error)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val list = snapshot.documents.mapNotNull { doc ->
+                        val d = doc.data ?: return@mapNotNull null
+                        val docUserId = doc.getString("userId") ?: doc.getString("patientUid") ?: ""
+                        val docEmail = doc.getString("userEmail") ?: ""
+                        if (docUserId == userId || (userEmail.isNotBlank() && docEmail == userEmail)) {
+                            doc.toEmergency()
+                        } else {
+                            null
+                        }
+                    }.sortedByDescending { it.createdAt ?: "" }
+                    Log.d(TAG, "Patient real-time snapshot updated: ${list.size} emergencies found for user $userId")
+                    onSuccess(list)
+                }
+            }
+    }
+
 
     suspend fun getEmergencyHistory(userId: String): Result<List<Emergency>> {
         return try {

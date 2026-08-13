@@ -47,23 +47,39 @@ class DriverRepository @Inject constructor(
             }
         }
 
-        // Firestore direct fallback
+        // Firestore direct fallback with Transaction
         return try {
             val now = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US).format(java.util.Date())
-            val updateMap = hashMapOf<String, Any?>(
-                "status" to "assigned",
-                "driverId" to driverId,
-                "assignedDriver" to driverId,
-                "driverName" to driverName,
-                "driverPhone" to driverPhone,
-                "assignedAt" to now,
-                "updatedAt" to now
-            )
+            val docRef = db.collection("emergencies").document(emergencyId)
 
             suspendCoroutine<Unit> { cont ->
-                db.collection("emergencies").document(emergencyId)
-                    .update(updateMap)
-                    .addOnCompleteListener { cont.resume(Unit) }
+                db.runTransaction { transaction ->
+                    val snap = transaction.get(docRef)
+                    if (!snap.exists()) {
+                        throw Exception("Emergency request no longer exists")
+                    }
+                    val existingDriver = snap.getString("driverId") ?: snap.getString("assignedDriver")
+                    if (!existingDriver.isNullOrBlank() && existingDriver != "null" && existingDriver != driverId) {
+                        throw Exception("This emergency has already been accepted by another driver.")
+                    }
+
+                    transaction.update(
+                        docRef,
+                        mapOf(
+                            "status" to "accepted",
+                            "driverId" to driverId,
+                            "assignedDriver" to driverId,
+                            "driverName" to driverName,
+                            "driverPhone" to driverPhone,
+                            "assignedAt" to now,
+                            "updatedAt" to now
+                        )
+                    )
+                }.addOnSuccessListener {
+                    cont.resume(Unit)
+                }.addOnFailureListener { err ->
+                    cont.resumeWith(kotlin.Result.failure(err))
+                }
             }
 
             try {
@@ -73,13 +89,35 @@ class DriverRepository @Inject constructor(
                 )
             } catch (_: Exception) {}
 
-            Log.d(TAG, "✅ Emergency assigned via Firestore direct write: $emergencyId to $driverId")
+            Log.d(TAG, "✅ Emergency assigned via Firestore transaction: $emergencyId to $driverId")
             Result.success(true)
         } catch (fe: Exception) {
             Log.e(TAG, "Firestore assignDriver failed: ${fe.message}")
-            Result.failure(Exception("Failed to accept emergency assignment: ${fe.message}"))
+            Result.failure(Exception(fe.message ?: "Failed to accept emergency assignment"))
         }
     }
+
+    suspend fun rejectEmergency(
+        emergencyId: String,
+        driverId: String
+    ): Result<Boolean> {
+        return try {
+            suspendCoroutine<Unit> { cont ->
+                db.collection("emergencies").document(emergencyId)
+                    .update("rejectedDrivers", com.google.firebase.firestore.FieldValue.arrayUnion(driverId))
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) cont.resume(Unit)
+                        else cont.resumeWith(kotlin.Result.failure(task.exception ?: Exception("Reject failed")))
+                    }
+            }
+            Log.d(TAG, "✅ Emergency $emergencyId rejected by driver $driverId")
+            Result.success(true)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to reject emergency: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
 
     suspend fun updateStatus(
         emergencyId: String,
@@ -288,6 +326,50 @@ class DriverRepository @Inject constructor(
             Result.success(true)
         } catch (fe: Exception) {
             Result.failure(fe)
+        }
+    }
+
+    suspend fun getDriverHistory(driverId: String): Result<List<Emergency>> {
+        return try {
+            val list = suspendCoroutine<List<Emergency>> { cont ->
+                db.collection("emergencies").get().addOnCompleteListener { task ->
+                    if (!task.isSuccessful || task.result == null) {
+                        cont.resume(emptyList())
+                        return@addOnCompleteListener
+                    }
+                    val items = task.result.documents.mapNotNull { doc ->
+                        val d = doc.data ?: return@mapNotNull null
+                        val currentDriverId = d["driverId"] as? String
+                        val assignedDriverId = d["assignedDriver"] as? String
+                        if (currentDriverId != driverId && assignedDriverId != driverId) return@mapNotNull null
+
+                        val createdAtRaw = d["createdAt"] ?: d["timestamp"]
+                        val createdAtStr = when (createdAtRaw) {
+                            is com.google.firebase.Timestamp -> createdAtRaw.toDate().toString()
+                            is String -> createdAtRaw
+                            else -> null
+                        }
+
+                        Emergency(
+                            id = doc.id,
+                            userId = d["userId"] as? String ?: "",
+                            patientName = d["patientName"] as? String ?: "Patient",
+                            emergencyType = d["emergencyType"] as? String ?: "general",
+                            description = d["description"] as? String ?: "",
+                            latitude = (d["latitude"] as? Number)?.toDouble() ?: 0.0,
+                            longitude = (d["longitude"] as? Number)?.toDouble() ?: 0.0,
+                            severityLevel = d["severityLevel"] as? String ?: d["severity"] as? String ?: "medium",
+                            status = d["status"] as? String ?: "pending",
+                            hospitalName = d["hospitalName"] as? String ?: d["hospital"] as? String,
+                            createdAt = createdAtStr
+                        )
+                    }
+                    cont.resume(items.sortedByDescending { it.createdAt ?: "" })
+                }
+            }
+            Result.success(list)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }
