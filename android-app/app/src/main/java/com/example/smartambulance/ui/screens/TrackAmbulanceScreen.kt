@@ -6,7 +6,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -23,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -31,6 +31,7 @@ import com.example.smartambulance.*
 import com.example.smartambulance.data.model.Emergency
 import com.example.smartambulance.data.model.isValidCoordinate
 import com.example.smartambulance.data.repository.GoogleMapsRepository
+import com.example.smartambulance.data.repository.RouteStep
 import com.example.smartambulance.ui.viewmodel.UserUiState
 import com.example.smartambulance.ui.viewmodel.UserViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -61,10 +62,12 @@ fun TrackAmbulanceScreen(
     var liveDriverHeading by remember { mutableStateOf(0.0) }
     var liveStatus by remember { mutableStateOf("") }
 
-    // Calculated route, ETA, and distance state
+    // Calculated route, ETA, distance, and steps
     var routePoints by remember { mutableStateOf<List<LatLng>>(emptyList()) }
     var etaText by remember { mutableStateOf<String?>("Calculating...") }
     var distanceText by remember { mutableStateOf<String?>("") }
+    var routeSteps by remember { mutableStateOf<List<RouteStep>>(emptyList()) }
+    var routeSummary by remember { mutableStateOf<String?>(null) }
 
     // Pulse animation for live indicator
     val pulseAnim = rememberInfiniteTransition(label = "pulse")
@@ -158,6 +161,8 @@ fun TrackAmbulanceScreen(
                 routePoints = res.polylinePoints.map { LatLng(it.first, it.second) }
                 etaText = res.trafficDurationText ?: res.durationText
                 distanceText = res.distanceText
+                routeSteps = res.steps
+                routeSummary = res.summary
             } else {
                 val distKm = gmapsRepo.haversineDistance(originLat, originLng, destLat, destLng)
                 distanceText = String.format("%.1f km", distKm)
@@ -168,11 +173,15 @@ fun TrackAmbulanceScreen(
                     etaText = "$minutes mins"
                 }
                 routePoints = listOf(LatLng(originLat, originLng), LatLng(destLat, destLng))
+                routeSteps = emptyList()
+                routeSummary = null
             }
         } else {
             etaText = "ETA unavailable"
             distanceText = "-- km"
             routePoints = emptyList()
+            routeSteps = emptyList()
+            routeSummary = null
         }
     }
 
@@ -212,11 +221,11 @@ fun TrackAmbulanceScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                // Top 55%: Interactive Google Map
+                // Top 50%: Interactive Google Map
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(0.55f)
+                        .weight(0.50f)
                 ) {
                     LiveTrackingMapView(
                         emergency = e,
@@ -230,20 +239,24 @@ fun TrackAmbulanceScreen(
                     )
                 }
 
-                // Bottom 45%: Information & Controls
+                // Bottom 50%: Full Information & Controls
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(0.45f)
+                        .weight(0.50f)
                 ) {
                     LiveTrackingInfoPanel(
                         emergency = e,
+                        emergencyId = emergencyId,
                         currentStatus = currentStatus,
                         isStage2 = isStage2,
                         etaText = etaText,
                         distanceText = distanceText,
                         liveDriverLat = liveDriverLat,
                         liveDriverLng = liveDriverLng,
+                        liveDriverSpeed = liveDriverSpeed,
+                        routeSteps = routeSteps,
+                        routeSummary = routeSummary,
                         onCancelEmergency = { viewModel.cancelActiveEmergency(emergencyId) }
                     )
                 }
@@ -386,6 +399,7 @@ private fun LiveTrackingMapView(
             }
         }
 
+        // Status overlay at top of map
         val (statusText, statusBgColor) = when (currentStatus) {
             "waiting", "pending" -> "⏳ Waiting for ambulance assignment..." to Color(0xFFF57C00)
             "assigned", "accepted" -> "🚑 Ambulance Dispatched! En route to patient" to Color(0xFF1565C0)
@@ -408,7 +422,8 @@ private fun LiveTrackingMapView(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(statusText, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                Text(statusText, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp,
+                    modifier = Modifier.weight(1f))
                 if (hasDriver) {
                     Box(
                         modifier = Modifier.size(10.dp).clip(CircleShape).background(Color.White.copy(alpha = pulseAlpha))
@@ -422,12 +437,16 @@ private fun LiveTrackingMapView(
 @Composable
 private fun LiveTrackingInfoPanel(
     emergency: Emergency,
+    emergencyId: String,
     currentStatus: String,
     isStage2: Boolean,
     etaText: String?,
     distanceText: String?,
     liveDriverLat: Double?,
     liveDriverLng: Double?,
+    liveDriverSpeed: Double,
+    routeSteps: List<RouteStep>,
+    routeSummary: String?,
     onCancelEmergency: () -> Unit
 ) {
     val context = LocalContext.current
@@ -441,7 +460,7 @@ private fun LiveTrackingInfoPanel(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // ETA & DISTANCE METRICS
+        // ── ETA & DISTANCE METRICS ──
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -467,9 +486,23 @@ private fun LiveTrackingInfoPanel(
                     Text(distanceText ?: "-- km", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
                 }
             }
+
+            // Speed metric
+            if (isValidCoordinate(liveDriverLat, liveDriverLng)) {
+                Card(
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0))
+                ) {
+                    Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("SPEED", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE65100))
+                        Text("${liveDriverSpeed.toInt()} km/h", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFFBF360C))
+                    }
+                }
+            }
         }
 
-        // STAGE BADGES
+        // ── STAGE BADGES ──
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -477,7 +510,7 @@ private fun LiveTrackingInfoPanel(
         ) {
             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("TRACKING STAGE", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -510,7 +543,101 @@ private fun LiveTrackingInfoPanel(
             }
         }
 
-        // DRIVER CARD
+        // ── DISPATCH TIMELINE ──
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+        ) {
+            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("DISPATCH TIMELINE", fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(modifier = Modifier.height(4.dp))
+
+                val timelineSteps = listOf(
+                    Triple("📞", "Emergency Reported", listOf("pending", "waiting", "assigned", "accepted", "on_the_way", "en_route", "enroute", "reached", "arrived", "patient_picked", "hospital_reached", "completed")),
+                    Triple("🚑", "Ambulance Assigned", listOf("assigned", "accepted", "on_the_way", "en_route", "enroute", "reached", "arrived", "patient_picked", "hospital_reached", "completed")),
+                    Triple("🚀", "En Route to Patient", listOf("on_the_way", "en_route", "enroute", "reached", "arrived", "patient_picked", "hospital_reached", "completed")),
+                    Triple("📍", "Arrived at Scene", listOf("reached", "arrived", "patient_picked", "hospital_reached", "completed")),
+                    Triple("🧑‍⚕️", "Patient Picked Up", listOf("patient_picked", "hospital_reached", "completed")),
+                    Triple("🏥", "Hospital Reached", listOf("hospital_reached", "completed")),
+                    Triple("✅", "Completed", listOf("completed"))
+                )
+
+                timelineSteps.forEach { (icon, label, doneStatuses) ->
+                    val isDone = currentStatus in doneStatuses
+                    val isCurrent = doneStatuses.contains(currentStatus) &&
+                            timelineSteps.indexOf(Triple(icon, label, doneStatuses)).let { idx ->
+                                idx == timelineSteps.size - 1 || currentStatus !in timelineSteps[idx + 1].third
+                            }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(icon, fontSize = 14.sp)
+                        Text(
+                            text = label,
+                            fontSize = 12.sp,
+                            fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
+                            color = when {
+                                isCurrent -> MaterialTheme.colorScheme.primary
+                                isDone -> Color(0xFF2E7D32)
+                                else -> Color.Gray
+                            }
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        if (isDone) {
+                            Text("✓", fontSize = 12.sp, color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+
+        // ── EMERGENCY DETAILS ──
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+        ) {
+            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("EMERGENCY DETAILS", fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Patient", fontSize = 12.sp, color = Color.Gray)
+                    Text(emergency.patientName, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Type", fontSize = 12.sp, color = Color.Gray)
+                    Text(emergency.emergencyType.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFFC62828))
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Severity", fontSize = 12.sp, color = Color.Gray)
+                    Text(
+                        emergency.severityLevel.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                        color = when (emergency.severityLevel.lowercase()) {
+                            "critical" -> Color(0xFFC62828)
+                            "high" -> Color(0xFFEF5350)
+                            "medium" -> Color(0xFFF57C00)
+                            else -> Color(0xFF2E7D32)
+                        }
+                    )
+                }
+                if (!emergency.description.isNullOrBlank()) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Details", fontSize = 12.sp, color = Color.Gray)
+                        Text(emergency.description, fontSize = 12.sp, modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.End)
+                    }
+                }
+            }
+        }
+
+        // ── DRIVER CARD ──
         if (!emergency.driverName.isNullOrBlank() || !emergency.driverPhone.isNullOrBlank()) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -541,7 +668,7 @@ private fun LiveTrackingInfoPanel(
             }
         }
 
-        // HOSPITAL CARD
+        // ── HOSPITAL CARD ──
         if (!emergency.hospitalName.isNullOrBlank()) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -562,32 +689,54 @@ private fun LiveTrackingInfoPanel(
             }
         }
 
-        // EXTERNAL GOOGLE MAPS BUTTON
-        Button(
-            onClick = {
-                val destLat = if (isStage2 && hospitalValid) emergency.hospitalLatitude!! else (liveDriverLat ?: emergency.latitude)
-                val destLng = if (isStage2 && hospitalValid) emergency.hospitalLongitude!! else (liveDriverLng ?: emergency.longitude)
-                try {
-                    val gmmIntentUri = Uri.parse("google.navigation:q=$destLat,$destLng&mode=d")
-                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
-                        setPackage("com.google.android.apps.maps")
+        // ── TURN-BY-TURN ROUTE STEPS ──
+        if (routeSteps.isNotEmpty()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFE8EAF6))
+            ) {
+                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("ROUTE DIRECTIONS", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF283593))
+                        if (routeSummary != null) {
+                            Text("via $routeSummary", fontSize = 10.sp, color = Color(0xFF5C6BC0))
+                        }
                     }
-                    context.startActivity(mapIntent)
-                } catch (_: Exception) {
-                    val webUri = Uri.parse("https://www.google.com/maps/dir/?api=1&destination=$destLat,$destLng&travelmode=driving")
-                    context.startActivity(Intent(Intent.ACTION_VIEW, webUri))
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    routeSteps.take(5).forEachIndexed { index, step ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                            verticalAlignment = Alignment.Top,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                "${index + 1}.",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF3949AB),
+                                modifier = Modifier.width(18.dp)
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(step.instruction, fontSize = 11.sp, lineHeight = 15.sp)
+                                Text("${step.distanceText} • ${step.durationText}", fontSize = 10.sp, color = Color.Gray)
+                            }
+                        }
+                    }
+                    if (routeSteps.size > 5) {
+                        Text("+ ${routeSteps.size - 5} more steps", fontSize = 10.sp,
+                            color = Color(0xFF5C6BC0), modifier = Modifier.padding(start = 26.dp, top = 4.dp))
+                    }
                 }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1565C0))
-        ) {
-            Icon(Icons.Default.Navigation, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-            Spacer(modifier = Modifier.width(6.dp))
-            Text("OPEN IN GOOGLE MAPS APP", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
         }
 
-        // CANCEL BUTTON
+        // ── CANCEL BUTTON ──
         if (currentStatus in listOf("waiting", "pending", "assigned", "accepted", "on_the_way")) {
             OutlinedButton(
                 onClick = onCancelEmergency,
@@ -598,6 +747,9 @@ private fun LiveTrackingInfoPanel(
                 Text("CANCEL EMERGENCY REQUEST", fontWeight = FontWeight.Bold)
             }
         }
+
+        // Bottom spacing
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 

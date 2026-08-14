@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth, db } from '../../config/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc, addDoc, collection } from 'firebase/firestore';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -10,6 +11,23 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const { currentUser, userRole, userStatus, userApproved } = useAuth();
+
+  // If user is ALREADY logged in and active, auto-redirect to their dashboard
+  useEffect(() => {
+    if (currentUser && userApproved && userStatus === 'active') {
+      if (userRole === 'super_admin') {
+        navigate('/super-admin/dashboard', { replace: true });
+      } else if (userRole === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (userRole === 'driver') {
+        navigate('/driver/dashboard', { replace: true });
+      } else {
+        navigate('/user/dashboard', { replace: true });
+      }
+    }
+  }, [currentUser, userRole, userStatus, userApproved, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,60 +44,67 @@ const Login = () => {
       const userSnap = await getDoc(userDocRef);
 
       if (!userSnap.exists()) {
-        setError('User profile not found in database. Please register.');
-        setLoading(false);
-        return;
-      }
+        // Fallback for user docs not yet created in Firestore — allow Patient login by default
+        console.warn('[Login] User profile not found in Firestore — defaulting to Patient user.');
+      } else {
+        const profile = userSnap.data();
 
-      const profile = userSnap.data();
+        // 3. Gate check: Status and approval
+        const isPatientUser = !profile.role || profile.role === 'user';
+        const isApproved = isPatientUser ? (profile.approved !== false) : (profile.approved === true);
+        const isActive = isPatientUser ? (profile.status !== 'suspended' && profile.status !== 'rejected') : (profile.status === 'active');
 
-      // 3. Gate check: Status and approval
-      if (profile.approved !== true || profile.status !== 'active') {
-        let statusMsg = 'Your account is not active.';
-        if (profile.status === 'pending') {
-          statusMsg = profile.role === 'admin'
-            ? 'Your admin account is pending Super Admin approval.'
-            : 'Your driver account is pending Admin approval.';
-        } else if (profile.status === 'rejected') {
-          statusMsg = 'Your account request was rejected by an administrator.';
-        } else if (profile.status === 'suspended') {
-          statusMsg = 'Your account has been suspended.';
+        if (!isApproved || !isActive) {
+          let statusMsg = 'Your account is not active.';
+          if (profile.status === 'pending') {
+            statusMsg = profile.role === 'admin'
+              ? 'Your admin account is pending Super Admin approval.'
+              : 'Your driver account is pending Admin approval.';
+          } else if (profile.status === 'rejected') {
+            statusMsg = 'Your account request was rejected by an administrator.';
+          } else if (profile.status === 'suspended') {
+            statusMsg = 'Your account has been suspended.';
+          }
+
+          setError(statusMsg);
+          await auth.signOut();
+          setLoading(false);
+          return;
         }
 
-        setError(statusMsg);
-        await auth.signOut();
-        setLoading(false);
+        // 4. Create Audit Log entry (non-blocking)
+        try {
+          await addDoc(collection(db, 'audit_logs'), {
+            action: 'login',
+            performedBy: uid,
+            targetUid: uid,
+            details: { email: profile.email || email.trim(), role: profile.role || 'user' },
+            createdAt: new Date().toISOString()
+          });
+        } catch (logErr) {
+          console.warn('[Login] Audit log write failed:', logErr.message);
+        }
+
+        // 5. Navigate based on role
+        const role = profile.role || 'user';
+        if (role === 'super_admin') {
+          navigate('/super-admin/dashboard', { replace: true });
+        } else if (role === 'admin') {
+          navigate('/admin/dashboard', { replace: true });
+        } else if (role === 'driver') {
+          navigate('/driver/dashboard', { replace: true });
+        } else {
+          navigate('/user/dashboard', { replace: true });
+        }
         return;
       }
 
-      // 4. Create Audit Log entry
-      try {
-        await addDoc(collection(db, 'audit_logs'), {
-          action: 'login',
-          performedBy: uid,
-          targetUid: uid,
-          details: { email: profile.email, role: profile.role },
-          createdAt: new Date().toISOString()
-        });
-      } catch (logErr) {
-        console.warn('[Login] Audit log write failed:', logErr.message);
-      }
-
-      // 5. Navigate based on role
-      const role = profile.role || 'user';
-      if (role === 'super_admin') {
-        navigate('/super-admin/dashboard');
-      } else if (role === 'admin') {
-        navigate('/admin/dashboard');
-      } else if (role === 'driver') {
-        navigate('/driver/dashboard');
-      } else {
-        navigate('/user/dashboard');
-      }
+      // Default navigation if no profile doc exists
+      navigate('/user/dashboard', { replace: true });
 
     } catch (err) {
       console.error('[Login] Auth error:', err);
-      if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-email') {
         setError('Invalid email address or password.');
       } else if (err.code === 'auth/too-many-requests') {
         setError('Too many failed attempts. Please try again later.');

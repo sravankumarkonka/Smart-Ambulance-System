@@ -28,18 +28,68 @@ import AdminHistory from './pages/admin/AdminHistory';
 // Super Admin Pages
 import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
 
-// Protected Route Component with Status & Approval Checks
+// Pending / Suspended Account View Component
+const PendingAccountNotice = ({ userRole, userStatus, logout }) => {
+  const isDriver = userRole === 'driver';
+  const isAdmin = userRole === 'admin';
+
+  let title = 'Account Pending Approval';
+  let message = 'Your account registration was received and is awaiting administrator verification. Once approved, full access will be granted.';
+
+  if (isDriver) {
+    message = 'Your Ambulance Driver registration has been submitted and is awaiting Admin review and vehicle verification.';
+  } else if (isAdmin) {
+    message = 'Your Admin registration has been submitted and is awaiting Super Admin verification.';
+  }
+
+  if (userStatus === 'rejected') {
+    title = 'Account Registration Declined';
+    message = 'Your account registration was declined by an administrator. Please contact support if you believe this was an error.';
+  } else if (userStatus === 'suspended') {
+    title = 'Account Suspended';
+    message = 'Your account access has been temporarily suspended by an administrator.';
+  }
+
+  return (
+    <div className="container mt-5" style={{ maxWidth: '560px' }}>
+      <div className="card text-center" style={{ padding: '36px 24px', borderRadius: '16px', boxShadow: 'var(--shadow-md)' }}>
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+          {userStatus === 'rejected' || userStatus === 'suspended' ? '⚠️' : '⏳'}
+        </div>
+        <h2 style={{ marginBottom: '12px', fontWeight: 700 }}>{title}</h2>
+        <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '24px', fontSize: '15px' }}>
+          {message}
+        </p>
+        <button
+          onClick={logout}
+          className="btn btn-outline"
+          style={{ padding: '12px 24px', borderRadius: '8px', fontWeight: 600 }}
+        >
+          Sign Out & Return to Login
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Protected Route Component with Role & Approval Checks
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { currentUser, userRole, userStatus, userApproved, loading } = useAuth();
+  const { currentUser, userRole, userStatus, userApproved, loading, logout } = useAuth();
   
-  if (loading) return <div className="container mt-4 text-center">Loading session...</div>;
+  if (loading) return <div className="container mt-5 text-center">Loading dispatch session...</div>;
   
   if (!currentUser) {
     return <Navigate to="/login" replace />;
   }
 
-  if (userApproved !== true || userStatus !== 'active') {
-    return <Navigate to="/login" replace />;
+  // Patients (userRole === 'user') are always approved by default unless explicitly suspended/rejected
+  const isPatientUser = userRole === 'user';
+  const isActive = isPatientUser
+    ? (userStatus !== 'suspended' && userStatus !== 'rejected')
+    : (userApproved === true && userStatus === 'active');
+
+  if (!isActive) {
+    return <PendingAccountNotice userRole={userRole} userStatus={userStatus} logout={logout} />;
   }
 
   if (allowedRoles && !allowedRoles.includes(userRole)) {

@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 const firebaseConfig = {
@@ -17,11 +17,13 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Services
 export const auth = getAuth(app);
-export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager()
-  })
-});
+
+// Use standard getFirestore instead of initializeFirestore with persistentLocalCache.
+// The persistentLocalCache with persistentMultipleTabManager can cause the Firestore
+// instance to block/hang indefinitely when there's a stale IndexedDB, tab conflicts,
+// or when the browser doesn't fully support the persistence APIs — preventing login
+// and registration from ever completing.
+export const db = getFirestore(app);
 
 // Messaging may not be supported in all environments (e.g. some browsers without notification support)
 let messaging;

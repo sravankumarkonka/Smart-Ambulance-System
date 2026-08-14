@@ -111,41 +111,53 @@ const Register = () => {
           lastUpdated: now
         });
 
-        // Driver notification for admins
-        await addDoc(collection(db, 'notifications'), {
-          type: 'driver_registration',
-          targetRole: 'admin',
-          senderUid: uid,
-          senderName: formData.name.trim(),
-          senderEmail: formData.email.trim(),
-          message: `New driver ${formData.name.trim()} registered and requires approval.`,
-          read: false,
-          createdAt: now
-        });
+        // Driver notification for admins (non-blocking)
+        try {
+          await addDoc(collection(db, 'notifications'), {
+            type: 'driver_registration',
+            targetRole: 'admin',
+            senderUid: uid,
+            senderName: formData.name.trim(),
+            senderEmail: formData.email.trim(),
+            message: `New driver ${formData.name.trim()} registered and requires approval.`,
+            read: false,
+            createdAt: now
+          });
+        } catch (notifErr) {
+          console.warn('[Register] Notification write failed:', notifErr.message);
+        }
       }
 
-      // 4. Admin specific notification for super admin
+      // 4. Admin specific notification for super admin (non-blocking)
       if (formData.role === 'admin') {
-        await addDoc(collection(db, 'notifications'), {
-          type: 'admin_registration',
-          targetRole: 'super_admin',
-          senderUid: uid,
-          senderName: formData.name.trim(),
-          senderEmail: formData.email.trim(),
-          message: `New admin ${formData.name.trim()} registered and requires Super Admin approval.`,
-          read: false,
-          createdAt: now
-        });
+        try {
+          await addDoc(collection(db, 'notifications'), {
+            type: 'admin_registration',
+            targetRole: 'super_admin',
+            senderUid: uid,
+            senderName: formData.name.trim(),
+            senderEmail: formData.email.trim(),
+            message: `New admin ${formData.name.trim()} registered and requires Super Admin approval.`,
+            read: false,
+            createdAt: now
+          });
+        } catch (notifErr) {
+          console.warn('[Register] Notification write failed:', notifErr.message);
+        }
       }
 
-      // 5. Audit Log
-      await addDoc(collection(db, 'audit_logs'), {
-        action: 'registration',
-        performedBy: uid,
-        targetUid: uid,
-        details: { role: formData.role, email: formData.email.trim() },
-        createdAt: now
-      });
+      // 5. Audit Log (non-blocking)
+      try {
+        await addDoc(collection(db, 'audit_logs'), {
+          action: 'registration',
+          performedBy: uid,
+          targetUid: uid,
+          details: { role: formData.role, email: formData.email.trim() },
+          createdAt: now
+        });
+      } catch (logErr) {
+        console.warn('[Register] Audit log write failed:', logErr.message);
+      }
 
       // 6. Navigation / Message handling
       if (isUser) {

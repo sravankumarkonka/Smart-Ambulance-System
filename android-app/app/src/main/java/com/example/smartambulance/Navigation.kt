@@ -138,5 +138,8 @@ fun MainNavigation() {
                 navController.popBackStack()
             })
         }
+        // EmbeddedNavigation route removed — embedded map and navigation
+        // are now integrated directly into TrackAmbulanceScreen and ActiveEmergencyScreen
     }
 }
+

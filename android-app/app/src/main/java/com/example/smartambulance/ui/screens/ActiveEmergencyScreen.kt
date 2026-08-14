@@ -26,12 +26,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.smartambulance.*
+import com.example.smartambulance.data.model.Emergency
+import com.example.smartambulance.data.model.isValidCoordinate
+import com.example.smartambulance.data.repository.GoogleMapsRepository
+import com.example.smartambulance.data.repository.RouteStep
 import com.example.smartambulance.ui.viewmodel.DriverUiState
 import com.example.smartambulance.ui.viewmodel.DriverViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -42,6 +47,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -70,6 +76,8 @@ fun ActiveEmergencyScreen(
     val emergency by viewModel.activeEmergency.collectAsStateWithLifecycle()
     val ambulance by viewModel.ambulance.collectAsStateWithLifecycle()
 
+    val gmapsRepo = remember { GoogleMapsRepository() }
+
     // Live GPS state
     var isLiveTracking by remember { mutableStateOf(false) }
     var currentLat by remember { mutableStateOf<Double?>(null) }
@@ -77,6 +85,13 @@ fun ActiveEmergencyScreen(
     var currentSpeed by remember { mutableStateOf(0f) }
     var currentBearing by remember { mutableStateOf(0f) }
     var trackerState by remember { mutableStateOf(LocationTrackerState(null, null)) }
+
+    // Calculated route, ETA, distance, and steps
+    var routePoints by remember { mutableStateOf<List<LatLng>>(emptyList()) }
+    var etaText by remember { mutableStateOf<String?>("Calculating...") }
+    var distanceText by remember { mutableStateOf<String?>("") }
+    var routeSteps by remember { mutableStateOf<List<RouteStep>>(emptyList()) }
+    var routeSummary by remember { mutableStateOf<String?>(null) }
 
     // Pulse animation for live indicator
     val pulseAnim = rememberInfiniteTransition(label = "pulse")
@@ -118,7 +133,7 @@ fun ActiveEmergencyScreen(
             }
 
             val client: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
-            
+
             // Immediate location acquisition
             try {
                 val cts = CancellationTokenSource()
@@ -198,6 +213,54 @@ fun ActiveEmergencyScreen(
         }
     }
 
+    // Current emergency status
+    val e = emergency
+    val currentStatus = (e?.status ?: "").trim().lowercase()
+    val isStage2 = currentStatus in listOf("patient_picked", "hospital_reached")
+
+    // Recalculate route and ETA whenever positions or stage changes
+    LaunchedEffect(emergency, currentLat, currentLng, currentStatus) {
+        val em = emergency ?: return@LaunchedEffect
+        val patientValid = isValidCoordinate(em.latitude, em.longitude)
+        if (!patientValid) return@LaunchedEffect
+
+        val driverLat = currentLat ?: ambulance?.latitude ?: return@LaunchedEffect
+        val driverLng = currentLng ?: ambulance?.longitude ?: return@LaunchedEffect
+
+        val hasHospital = isValidCoordinate(em.hospitalLatitude, em.hospitalLongitude)
+        val destLat = if (isStage2 && hasHospital) em.hospitalLatitude!! else em.latitude
+        val destLng = if (isStage2 && hasHospital) em.hospitalLongitude!! else em.longitude
+
+        if (isValidCoordinate(driverLat, driverLng) && isValidCoordinate(destLat, destLng)) {
+            val res = gmapsRepo.getRoute(Pair(driverLat, driverLng), Pair(destLat, destLng))
+            if (res != null && res.polylinePoints.isNotEmpty()) {
+                routePoints = res.polylinePoints.map { LatLng(it.first, it.second) }
+                etaText = res.trafficDurationText ?: res.durationText
+                distanceText = res.distanceText
+                routeSteps = res.steps
+                routeSummary = res.summary
+            } else {
+                val distKm = gmapsRepo.haversineDistance(driverLat, driverLng, destLat, destLng)
+                distanceText = String.format("%.1f km", distKm)
+                if (distKm < 0.05) {
+                    etaText = "Arrived"
+                } else {
+                    val minutes = Math.max(1, Math.round(distKm / 30.0 * 60).toInt())
+                    etaText = "$minutes mins"
+                }
+                routePoints = listOf(LatLng(driverLat, driverLng), LatLng(destLat, destLng))
+                routeSteps = emptyList()
+                routeSummary = null
+            }
+        } else {
+            etaText = "ETA unavailable"
+            distanceText = "-- km"
+            routePoints = emptyList()
+            routeSteps = emptyList()
+            routeSummary = null
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -242,40 +305,81 @@ fun ActiveEmergencyScreen(
             )
         }
     ) { paddingValues ->
-        emergency?.let { e ->
+        emergency?.let { em ->
             Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
 
-                // ── MAP (60% of screen) ──────────────────────────────────────
+                // ── MAP (50% of screen) ──────────────────────────────────────
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(0.6f)
+                        .weight(0.50f)
                         .background(Color(0xFF1A237E))
                 ) {
                     val driverLat = currentLat ?: ambulance?.latitude ?: 12.9716
                     val driverLng = currentLng ?: ambulance?.longitude ?: 77.5946
 
                     ActiveEmergencyMapView(
-                        emergency = e,
+                        emergency = em,
                         driverLat = driverLat,
                         driverLng = driverLng,
                         isLiveTracking = isLiveTracking,
                         currentSpeed = currentSpeed,
                         currentBearing = currentBearing,
+                        routePoints = routePoints,
+                        isStage2 = isStage2,
                         pulseScale = pulseScale
                     )
                 }
 
-                // ── CONTROLS (40% of screen) ─────────────────────────────────
+                // ── CONTROLS + INFO (50% of screen) ─────────────────────────
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(0.4f)
+                        .weight(0.50f)
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
+                    // ── ETA & DISTANCE METRICS ──
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Card(
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("ETA", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1565C0))
+                                Text(etaText ?: "Calculating...", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0D47A1))
+                            }
+                        }
+
+                        Card(
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("DISTANCE", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2E7D32))
+                                Text(distanceText ?: "-- km", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
+                            }
+                        }
+
+                        Card(
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0))
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("SPEED", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE65100))
+                                Text("${currentSpeed.toInt()} km/h", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFFBF360C))
+                            }
+                        }
+                    }
+
                     // Patient info row
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -283,11 +387,11 @@ fun ActiveEmergencyScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
-                            Text(e.patientName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(em.patientName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             Text(
-                                "${e.emergencyType.uppercase()} • ${e.severityLevel.uppercase()}",
+                                "${em.emergencyType.uppercase()} • ${em.severityLevel.uppercase()}",
                                 fontSize = 12.sp,
-                                color = when (e.severityLevel) {
+                                color = when (em.severityLevel) {
                                     "critical" -> Color(0xFFC62828)
                                     "high" -> Color(0xFFEF5350)
                                     "medium" -> Color(0xFFF57C00)
@@ -301,13 +405,12 @@ fun ActiveEmergencyScreen(
                                     .background(Color(0xFF1B5E20), RoundedCornerShape(20.dp))
                                     .padding(horizontal = 12.dp, vertical = 6.dp)
                             ) {
-                                Text("${currentSpeed.toInt()} km/h", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                Text("LIVE", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
 
                     // TRACKING STAGES BANNER (STAGE 1 vs STAGE 2)
-                    val isStage2 = e.status in listOf("patient_picked", "hospital_reached")
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
@@ -318,8 +421,8 @@ fun ActiveEmergencyScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            val stage1Color = if (!isStage2 && e.status != "completed") Color(0xFF1565C0) else Color(0xFF2E7D32)
-                            val stage2Color = if (isStage2 && e.status != "completed") Color(0xFF1565C0) else if (e.status == "completed") Color(0xFF2E7D32) else Color.Gray
+                            val stage1Color = if (!isStage2 && em.status != "completed") Color(0xFF1565C0) else Color(0xFF2E7D32)
+                            val stage2Color = if (isStage2 && em.status != "completed") Color(0xFF1565C0) else if (em.status == "completed") Color(0xFF2E7D32) else Color.Gray
 
                             Box(
                                 modifier = Modifier
@@ -351,76 +454,71 @@ fun ActiveEmergencyScreen(
                         }
                     }
 
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-                    // Navigation to Patient & Hospital (Google Maps Live Traffic)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Button(
-                            onClick = {
-                                try {
-                                    val gmmIntentUri = Uri.parse("google.navigation:q=${e.latitude},${e.longitude}&mode=d")
-                                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
-                                        setPackage("com.google.android.apps.maps")
-                                    }
-                                    context.startActivity(mapIntent)
-                                } catch (_: Exception) {
-                                    val webUri = Uri.parse("https://www.google.com/maps/dir/?api=1&destination=${e.latitude},${e.longitude}&travelmode=driving")
-                                    context.startActivity(Intent(Intent.ACTION_VIEW, webUri))
-                                }
-                            },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1565C0))
+                    // ── TURN-BY-TURN ROUTE STEPS ──
+                    if (routeSteps.isNotEmpty()) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8EAF6))
                         ) {
-                            Icon(Icons.Default.Navigation, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("PATIENT NAV", fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        }
-
-                        if (e.hospitalLatitude != null && e.hospitalLongitude != null) {
-                            Button(
-                                onClick = {
-                                    try {
-                                        val gmmIntentUri = Uri.parse("google.navigation:q=${e.hospitalLatitude},${e.hospitalLongitude}&mode=d")
-                                        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
-                                            setPackage("com.google.android.apps.maps")
-                                        }
-                                        context.startActivity(mapIntent)
-                                    } catch (_: Exception) {
-                                        val webUri = Uri.parse("https://www.google.com/maps/dir/?api=1&destination=${e.hospitalLatitude},${e.hospitalLongitude}&travelmode=driving")
-                                        context.startActivity(Intent(Intent.ACTION_VIEW, webUri))
+                            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("NAVIGATION STEPS", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF283593))
+                                    if (routeSummary != null) {
+                                        Text("via $routeSummary", fontSize = 10.sp, color = Color(0xFF5C6BC0))
                                     }
-                                },
-                                modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(8.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
-                            ) {
-                                Icon(Icons.Default.LocalHospital, contentDescription = null, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text("HOSPITAL NAV", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                routeSteps.take(5).forEachIndexed { index, step ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                                        verticalAlignment = Alignment.Top,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Text(
+                                            "${index + 1}.",
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFF3949AB),
+                                            modifier = Modifier.width(18.dp)
+                                        )
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(step.instruction, fontSize = 11.sp, lineHeight = 15.sp)
+                                            Text("${step.distanceText} • ${step.durationText}", fontSize = 10.sp, color = Color.Gray)
+                                        }
+                                    }
+                                }
+                                if (routeSteps.size > 5) {
+                                    Text("+ ${routeSteps.size - 5} more steps", fontSize = 10.sp,
+                                        color = Color(0xFF5C6BC0), modifier = Modifier.padding(start = 26.dp, top = 4.dp))
+                                }
                             }
                         }
                     }
 
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
                     // Status action buttons
-                    when (e.status) {
+                    when (em.status) {
                         "assigned", "accepted" -> ActiveStatusButton("🚀 ON THE WAY", Color(0xFF0288D1)) {
-                            viewModel.updateEmergencyStatus(e.id ?: "", "on_the_way")
+                            viewModel.updateEmergencyStatus(em.id ?: "", "on_the_way")
                         }
                         "on_the_way" -> ActiveStatusButton("📍 ARRIVED AT SCENE", Color(0xFFF57C00)) {
-                            viewModel.updateEmergencyStatus(e.id ?: "", "reached")
+                            viewModel.updateEmergencyStatus(em.id ?: "", "reached")
                         }
                         "reached", "arrived" -> ActiveStatusButton("🧑‍⚕️ PATIENT PICKED UP", Color(0xFF7B1FA2)) {
-                            viewModel.updateEmergencyStatus(e.id ?: "", "patient_picked")
+                            viewModel.updateEmergencyStatus(em.id ?: "", "patient_picked")
                         }
                         "patient_picked" -> ActiveStatusButton("🏥 HOSPITAL REACHED", Color(0xFF388E3C)) {
-                            viewModel.updateEmergencyStatus(e.id ?: "", "hospital_reached")
+                            viewModel.updateEmergencyStatus(em.id ?: "", "hospital_reached")
                         }
                         "hospital_reached" -> ActiveStatusButton("✅ COMPLETE DISPATCH", Color(0xFF2E7D32)) {
-                            viewModel.updateEmergencyStatus(e.id ?: "", "completed")
+                            viewModel.updateEmergencyStatus(em.id ?: "", "completed")
                         }
                         else -> {}
                     }
@@ -428,18 +526,21 @@ fun ActiveEmergencyScreen(
                     // Abort / Release row
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(
-                            onClick = { viewModel.releaseEmergency(e.id ?: "") },
+                            onClick = { viewModel.releaseEmergency(em.id ?: "") },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(8.dp)
                         ) { Text("RELEASE TASK", fontSize = 12.sp) }
 
                         OutlinedButton(
-                            onClick = { viewModel.updateEmergencyStatus(e.id ?: "", "cancelled") },
+                            onClick = { viewModel.updateEmergencyStatus(em.id ?: "", "cancelled") },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFC62828))
                         ) { Text("ABORT CASE", fontSize = 12.sp) }
                     }
+
+                    // Bottom spacing
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         } ?: Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -465,12 +566,14 @@ private fun ActiveStatusButton(label: String, bgColor: Color, onClick: () -> Uni
 
 @Composable
 private fun ActiveEmergencyMapView(
-    emergency: com.example.smartambulance.data.model.Emergency,
+    emergency: Emergency,
     driverLat: Double,
     driverLng: Double,
     isLiveTracking: Boolean,
     currentSpeed: Float,
     currentBearing: Float,
+    routePoints: List<LatLng>,
+    isStage2: Boolean,
     pulseScale: Float
 ) {
     val patientLatLng = LatLng(emergency.latitude, emergency.longitude)
@@ -516,31 +619,38 @@ private fun ActiveEmergencyMapView(
                 mapLoadTimedOut = false
             }
         ) {
+            // Patient marker
             Marker(
                 state = MarkerState(position = patientLatLng),
                 title = "📍 Patient: ${emergency.patientName}",
-                snippet = "Emergency Location"
+                snippet = "Emergency Location",
+                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
             )
+            // Driver marker
             Marker(
                 state = MarkerState(position = driverLatLng),
                 title = "🚑 Your Ambulance",
-                snippet = if (isLiveTracking) "Live GPS • ${currentSpeed.toInt()} km/h" else "Position"
+                snippet = if (isLiveTracking) "Live GPS • ${currentSpeed.toInt()} km/h" else "Position",
+                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
             )
+            // Hospital marker
             if (emergency.hospitalLatitude != null && emergency.hospitalLongitude != null) {
                 Marker(
                     state = MarkerState(position = LatLng(emergency.hospitalLatitude, emergency.hospitalLongitude)),
                     title = "🏥 ${emergency.hospitalName ?: "Hospital"}",
-                    snippet = "Destination"
+                    snippet = "Destination",
+                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
                 )
             }
-            val polylinePoints = buildList {
-                add(driverLatLng)
-                add(patientLatLng)
-                if (emergency.hospitalLatitude != null && emergency.hospitalLongitude != null) {
-                    add(LatLng(emergency.hospitalLatitude, emergency.hospitalLongitude))
-                }
+
+            // Directions API route polyline (replaces simple point-to-point line)
+            if (routePoints.isNotEmpty()) {
+                Polyline(
+                    points = routePoints,
+                    color = if (isStage2) Color(0xFF2E7D32) else Color(0xFF1565C0),
+                    width = 14f
+                )
             }
-            Polyline(points = polylinePoints, color = Color(0xFF1565C0), width = 14f)
         }
 
         if (mapLoadTimedOut) {
@@ -569,7 +679,7 @@ private fun ActiveEmergencyMapView(
             }
         }
 
-        // Navigation header card
+        // Navigation header card overlay
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -615,4 +725,3 @@ private fun ActiveEmergencyMapView(
         }
     }
 }
-

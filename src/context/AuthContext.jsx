@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db } from '../config/firebase';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 
 const AuthContext = createContext();
 
@@ -15,39 +15,96 @@ export const AuthProvider = ({ children }) => {
   const [userApproved, setUserApproved] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const processUserProfile = (data) => {
+    if (!data) {
+      // Default fallback for authenticated users without a Firestore doc
+      setUserRole('user');
+      setUserStatus('active');
+      setUserApproved(true);
+      return;
+    }
+
+    const role = data.role || 'user';
+    const isUser = role === 'user';
+    
+    // Status defaults: 'active' for normal users, 'pending' for driver/admin if missing
+    const status = data.status || (isUser ? 'active' : 'pending');
+    
+    // Approved defaults: true for normal users, false for driver/admin if missing
+    const approved = data.approved !== undefined ? (data.approved === true) : isUser;
+
+    setUserData(data);
+    setUserRole(role);
+    setUserStatus(status);
+    setUserApproved(approved);
+  };
+
   useEffect(() => {
     let unsubscribeFirestore = null;
+    let timeoutId = null;
 
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (unsubscribeFirestore) {
         unsubscribeFirestore();
         unsubscribeFirestore = null;
+      }
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
       }
 
       if (user) {
         setCurrentUser(user);
 
-        // Real-time listener for the user's Firestore profile
-        const userDocRef = doc(db, 'users', user.uid);
-        unsubscribeFirestore = onSnapshot(userDocRef, (snapshot) => {
+        // Safety timeout: if Firestore doesn't respond within 5 seconds,
+        // fallback to default user role so the app doesn't hang
+        timeoutId = setTimeout(() => {
+          console.warn('[AuthContext] Firestore profile fetch timed out after 5s — releasing loading with defaults');
+          setUserRole('user');
+          setUserStatus('active');
+          setUserApproved(true);
+          setLoading(false);
+        }, 5000);
+
+        // Fast one-shot getDoc
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          const snapshot = await getDoc(userDocRef);
           if (snapshot.exists()) {
-            const data = snapshot.data();
-            setUserData(data);
-            setUserRole(data.role || 'user');
-            setUserStatus(data.status || 'pending');
-            setUserApproved(data.approved === true);
+            processUserProfile(snapshot.data());
           } else {
             console.warn('[AuthContext] Firestore profile missing for UID:', user.uid);
             setUserData(null);
-            setUserRole('user');
-            setUserStatus('pending');
-            setUserApproved(false);
+            processUserProfile(null);
+          }
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
           }
           setLoading(false);
-        }, (error) => {
-          console.error('[AuthContext] Error listening to user profile:', error);
+        } catch (error) {
+          console.error('[AuthContext] Error fetching user profile via getDoc:', error);
+          processUserProfile(null);
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+          }
           setLoading(false);
-        });
+        }
+
+        // Real-time listener for subsequent background updates
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          unsubscribeFirestore = onSnapshot(userDocRef, (snapshot) => {
+            if (snapshot.exists()) {
+              processUserProfile(snapshot.data());
+            }
+          }, (error) => {
+            console.error('[AuthContext] Error in user profile listener:', error);
+          });
+        } catch (error) {
+          console.error('[AuthContext] Error setting up onSnapshot listener:', error);
+        }
 
       } else {
         setCurrentUser(null);
@@ -63,6 +120,9 @@ export const AuthProvider = ({ children }) => {
       unsubscribeAuth();
       if (unsubscribeFirestore) {
         unsubscribeFirestore();
+      }
+      if (timeoutId) {
+        clearTimeout(timeoutId);
       }
     };
   }, []);

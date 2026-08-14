@@ -46,3 +46,4 @@ data object Profile
 
 @Serializable
 data object NotificationCenter
+
