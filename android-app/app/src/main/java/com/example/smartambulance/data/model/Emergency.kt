@@ -150,7 +150,7 @@ fun com.google.firebase.firestore.DocumentSnapshot.toEmergency(): Emergency? {
         ?: getString("severity")
         ?: "medium"
 
-    val statusVal = getString("status") ?: "pending"
+    val statusVal = (getString("status") ?: "pending").trim().lowercase()
 
     val createdAtVal = parseFirestoreTimestamp(get("createdAt") ?: get("timestamp"))
 

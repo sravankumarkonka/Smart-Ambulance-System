@@ -28,6 +28,7 @@ fun DriverHistoryScreen(
     val driverId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
         ?: SessionManager.uid ?: ""
     val db = remember { FirebaseFirestore.getInstance() }
+    var activeList by remember { mutableStateOf<List<Emergency>>(emptyList()) }
     var historyList by remember { mutableStateOf<List<Emergency>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
 
@@ -40,18 +41,24 @@ fun DriverHistoryScreen(
         val listener = db.collection("emergencies")
             .addSnapshotListener { snapshot, error ->
                 if (error == null && snapshot != null) {
-                    val list = snapshot.documents.mapNotNull { doc ->
-                        val item = doc.toEmergency() ?: return@mapNotNull null
+                    val active = mutableListOf<Emergency>()
+                    val history = mutableListOf<Emergency>()
+
+                    snapshot.documents.forEach { doc ->
+                        val item = doc.toEmergency() ?: return@forEach
                         val currentDriverId = doc.getString("driverId") ?: doc.getString("assignedDriver")
-                        if (currentDriverId != driverId) {
-                            return@mapNotNull null
+                        if (currentDriverId != driverId && item.driverId != driverId) {
+                            return@forEach
                         }
-                        if (!com.example.smartambulance.data.model.isStatusHistory(item.status)) {
-                            return@mapNotNull null
+                        if (com.example.smartambulance.data.model.isStatusHistory(item.status)) {
+                            history.add(item)
+                        } else if (com.example.smartambulance.data.model.isStatusActive(item.status)) {
+                            active.add(item)
                         }
-                        item
                     }
-                    historyList = list.sortedByDescending { it.createdAt ?: "" }
+
+                    activeList = active.sortedByDescending { it.createdAt ?: "" }
+                    historyList = history.sortedByDescending { it.createdAt ?: "" }
                 }
                 loading = false
             }
@@ -88,13 +95,19 @@ fun DriverHistoryScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Total Completed: ${historyList.count { (it.status ?: "").lowercase() == "completed" }}",
+                    text = "Active: ${activeList.size}",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    color = Color(0xFF1565C0)
+                )
+                Text(
+                    text = "Completed: ${historyList.count { (it.status ?: "").lowercase() == "completed" }}",
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     color = Color(0xFF2E7D32)
                 )
                 Text(
-                    text = "Total Calls: ${historyList.size}",
+                    text = "Total: ${activeList.size + historyList.size}",
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -104,7 +117,7 @@ fun DriverHistoryScreen(
 
             if (loading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-            } else if (historyList.isEmpty()) {
+            } else if (activeList.isEmpty() && historyList.isEmpty()) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
@@ -120,52 +133,139 @@ fun DriverHistoryScreen(
                 }
             } else {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    items(historyList) { item ->
-                        val statusColor = when (item.status?.lowercase()) {
-                            "completed" -> Color(0xFF2E7D32)
-                            "cancelled" -> Color(0xFFC62828)
-                            else -> Color(0xFFF57C00)
+                    // Active emergencies section
+                    if (activeList.isNotEmpty()) {
+                        item {
+                            Text(
+                                text = "🔴 Active Cases (${activeList.size})",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = Color(0xFFC62828)
+                            )
                         }
 
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            elevation = CardDefaults.cardElevation(2.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                        items(activeList) { item ->
+                            val statusColor = when (item.status?.lowercase()) {
+                                "assigned", "accepted" -> Color(0xFF1565C0)
+                                "on_the_way", "en_route", "enroute" -> Color(0xFF0288D1)
+                                "reached", "arrived" -> Color(0xFF7B1FA2)
+                                "patient_picked" -> Color(0xFF388E3C)
+                                "hospital_reached" -> Color(0xFF2E7D32)
+                                else -> Color(0xFFF57C00)
+                            }
+
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                                ),
+                                elevation = CardDefaults.cardElevation(2.dp)
                             ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
+                                Column(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
-                                    Text(
-                                        text = "${item.emergencyType.uppercase()} CALL",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 15.sp
-                                    )
-                                    Box(
-                                        modifier = Modifier
-                                            .background(statusColor, shape = RoundedCornerShape(6.dp))
-                                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = item.status?.uppercase() ?: "PENDING",
-                                            color = Color.White,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold
+                                            text = "${item.emergencyType.uppercase()} CALL",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 15.sp
                                         )
+                                        Box(
+                                            modifier = Modifier
+                                                .background(statusColor, shape = RoundedCornerShape(6.dp))
+                                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                        ) {
+                                            Text(
+                                                text = (item.status ?: "ACTIVE").replace("_", " ").uppercase(),
+                                                color = Color.White,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
                                     }
-                                }
 
-                                Text("Patient: ${item.patientName}", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                if (!item.hospitalName.isNullOrBlank()) {
-                                    Text("Destination: 🏥 ${item.hospitalName}", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+                                    Text("Patient: ${item.patientName}", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                    if (!item.hospitalName.isNullOrBlank()) {
+                                        Text("Destination: 🏥 ${item.hospitalName}", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+                                    }
+                                    Text("Severity: ${item.severityLevel.uppercase()}", fontSize = 12.sp, color = Color.Gray)
+                                    Text("Time: ${item.createdAt?.take(16)?.replace("T", " ") ?: "N/A"}", fontSize = 11.sp, color = Color.Gray)
                                 }
-                                Text("Severity: ${item.severityLevel.uppercase()}", fontSize = 12.sp, color = Color.Gray)
-                                Text("Time: ${item.createdAt ?: "N/A"}", fontSize = 11.sp, color = Color.Gray)
+                            }
+                        }
+
+                        item {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 4.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+                        }
+                    }
+
+                    // History section
+                    if (historyList.isNotEmpty()) {
+                        item {
+                            Text(
+                                text = "Past Responses (${historyList.size})",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        items(historyList) { item ->
+                            val statusColor = when (item.status?.lowercase()) {
+                                "completed" -> Color(0xFF2E7D32)
+                                "cancelled" -> Color(0xFFC62828)
+                                else -> Color(0xFFF57C00)
+                            }
+
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                elevation = CardDefaults.cardElevation(2.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "${item.emergencyType.uppercase()} CALL",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 15.sp
+                                        )
+                                        Box(
+                                            modifier = Modifier
+                                                .background(statusColor, shape = RoundedCornerShape(6.dp))
+                                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                        ) {
+                                            Text(
+                                                text = item.status?.uppercase() ?: "PENDING",
+                                                color = Color.White,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                    }
+
+                                    Text("Patient: ${item.patientName}", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                    if (!item.hospitalName.isNullOrBlank()) {
+                                        Text("Destination: 🏥 ${item.hospitalName}", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+                                    }
+                                    Text("Severity: ${item.severityLevel.uppercase()}", fontSize = 12.sp, color = Color.Gray)
+                                    Text("Time: ${item.createdAt?.take(16)?.replace("T", " ") ?: "N/A"}", fontSize = 11.sp, color = Color.Gray)
+                                }
                             }
                         }
                     }

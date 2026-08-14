@@ -178,7 +178,7 @@ class DriverRepository @Inject constructor(
             suspendCoroutine<Unit> { cont ->
                 db.collection("emergencies").document(emergencyId)
                     .update(mapOf(
-                        "status" to "Waiting",
+                        "status" to "waiting",
                         "driverId" to null,
                         "assignedDriver" to null,
                         "driverName" to null,

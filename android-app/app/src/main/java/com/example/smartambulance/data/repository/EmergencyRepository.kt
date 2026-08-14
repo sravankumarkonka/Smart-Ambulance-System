@@ -128,7 +128,7 @@ class EmergencyRepository @Inject constructor(
                 "severityScore" to (severityLevelMap[severityLevel] ?: 2),
                 "latitude" to latitude,
                 "longitude" to longitude,
-                "status" to "Waiting",
+                "status" to "waiting",
                 "assignedDriver" to null,
                 "driverId" to null,
                 "driverName" to null,

@@ -44,6 +44,7 @@ fun DriverDashboardScreen(
     val assignedEmergency by viewModel.activeEmergency.collectAsStateWithLifecycle()
 
     var pendingEmergencies by remember { mutableStateOf<List<Emergency>>(emptyList()) }
+    var historyEmergencies by remember { mutableStateOf<List<Emergency>>(emptyList()) }
     var oxygenChecked by remember { mutableStateOf(true) }
     var stretcherChecked by remember { mutableStateOf(true) }
     var kitChecked by remember { mutableStateOf(true) }
@@ -67,6 +68,7 @@ fun DriverDashboardScreen(
                     }
                     if (snapshot != null) {
                         val list = mutableListOf<Emergency>()
+                        val histList = mutableListOf<Emergency>()
                         var assignedToMe: Emergency? = null
 
                         for (doc in snapshot.documents) {
@@ -79,16 +81,21 @@ fun DriverDashboardScreen(
                             val hasNoDriver = docDriverId.isNullOrBlank() || docDriverId == "null"
                             val isRejectedByMe = rejectedList?.contains(driverId) == true
                             val isAssignedToMe = ((docDriverId == driverId) || (item.driverId == driverId)) && com.example.smartambulance.data.model.isStatusActive(docStatus)
+                            val isMyHistory = ((docDriverId == driverId) || (item.driverId == driverId)) && com.example.smartambulance.data.model.isStatusHistory(docStatus)
 
                             if (isAssignedToMe) {
                                 assignedToMe = item
                             } else if (isPending && hasNoDriver && !isRejectedByMe) {
                                 list.add(item)
                             }
+                            if (isMyHistory) {
+                                histList.add(item)
+                            }
                         }
 
-                        android.util.Log.d("DriverDashboard", "Firestore snapshot: ${list.size} pending emergencies found for driver $driverId")
+                        android.util.Log.d("DriverDashboard", "Firestore snapshot: ${list.size} pending, ${histList.size} history for driver $driverId")
                         pendingEmergencies = list.sortedByDescending { it.createdAt ?: "" }
+                        historyEmergencies = histList.sortedByDescending { it.createdAt ?: "" }.take(5)
                         if (assignedToMe != null) {
                             viewModel.setActiveEmergency(assignedToMe)
                         } else {
@@ -456,6 +463,75 @@ fun DriverDashboardScreen(
                                     Text("REJECT", fontWeight = FontWeight.Bold)
                                 }
                             }
+                        }
+                    }
+                }
+            }
+            // 6. Recent Response History
+            item {
+                Text("Recent Response History", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            }
+
+            if (historyEmergencies.isEmpty()) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("No response history yet.", color = Color.Gray)
+                        }
+                    }
+                }
+            } else {
+                items(historyEmergencies) { item ->
+                    val statusColor = when (item.status?.lowercase()) {
+                        "completed" -> Color(0xFF2E7D32)
+                        "cancelled", "canceled" -> Color(0xFFC62828)
+                        else -> Color(0xFFF57C00)
+                    }
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        elevation = CardDefaults.cardElevation(2.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(14.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "${item.emergencyType.uppercase()} CALL",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .background(statusColor, shape = RoundedCornerShape(6.dp))
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Text(
+                                        text = item.status?.uppercase() ?: "PENDING",
+                                        color = Color.White,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                            Text("Patient: ${item.patientName}", fontSize = 13.sp)
+                            if (!item.hospitalName.isNullOrBlank()) {
+                                Text("Hospital: 🏥 ${item.hospitalName}", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                            }
+                            Text("Time: ${item.createdAt?.take(16)?.replace("T", " ") ?: "N/A"}", fontSize = 11.sp, color = Color.Gray)
                         }
                     }
                 }

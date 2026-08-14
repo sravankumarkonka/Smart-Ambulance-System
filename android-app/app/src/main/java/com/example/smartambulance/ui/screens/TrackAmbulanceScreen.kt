@@ -282,6 +282,15 @@ private fun LiveTrackingMapView(
     }
 
     var mapLoaded by remember { mutableStateOf(false) }
+    var mapLoadTimedOut by remember { mutableStateOf(false) }
+
+    // Detect map load timeout — if tiles don't load in 15s, the API key is likely invalid
+    LaunchedEffect(mapLoaded) {
+        if (!mapLoaded) {
+            kotlinx.coroutines.delay(15_000)
+            if (!mapLoaded) mapLoadTimedOut = true
+        }
+    }
 
     LaunchedEffect(driverLatLng, patientLatLng, emergency.hospitalLatitude, emergency.hospitalLongitude) {
         try {
@@ -307,7 +316,10 @@ private fun LiveTrackingMapView(
             cameraPositionState = cameraPositionState,
             properties = MapProperties(mapType = MapType.NORMAL, isMyLocationEnabled = false),
             uiSettings = MapUiSettings(zoomControlsEnabled = true, compassEnabled = true, mapToolbarEnabled = true),
-            onMapLoaded = { mapLoaded = true }
+            onMapLoaded = {
+                mapLoaded = true
+                mapLoadTimedOut = false
+            }
         ) {
             // Patient marker
             Marker(
@@ -348,7 +360,20 @@ private fun LiveTrackingMapView(
             }
         }
 
-        if (!mapLoaded) {
+        if (mapLoadTimedOut) {
+            com.example.smartambulance.ui.components.OpenStreetMapWebView(
+                patientLat = emergency.latitude,
+                patientLng = emergency.longitude,
+                patientName = emergency.patientName,
+                driverLat = liveDriverLat,
+                driverLng = liveDriverLng,
+                driverName = emergency.driverName ?: "Ambulance",
+                driverSpeed = liveDriverSpeed,
+                hospitalLat = emergency.hospitalLatitude,
+                hospitalLng = emergency.hospitalLongitude,
+                hospitalName = emergency.hospitalName ?: "Hospital"
+            )
+        } else if (!mapLoaded) {
             Box(
                 modifier = Modifier.fillMaxSize().background(Color(0xFF0D1B2A).copy(alpha = 0.85f)),
                 contentAlignment = Alignment.Center
@@ -356,7 +381,7 @@ private fun LiveTrackingMapView(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator(color = Color.White)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Initializing Google Maps...", color = Color.White, fontSize = 13.sp)
+                    Text("Initializing Maps...", color = Color.White, fontSize = 13.sp)
                 }
             }
         }

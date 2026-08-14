@@ -306,6 +306,51 @@ fun ActiveEmergencyScreen(
                         }
                     }
 
+                    // TRACKING STAGES BANNER (STAGE 1 vs STAGE 2)
+                    val isStage2 = e.status in listOf("patient_picked", "hospital_reached")
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val stage1Color = if (!isStage2 && e.status != "completed") Color(0xFF1565C0) else Color(0xFF2E7D32)
+                            val stage2Color = if (isStage2 && e.status != "completed") Color(0xFF1565C0) else if (e.status == "completed") Color(0xFF2E7D32) else Color.Gray
+
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .background(stage1Color, RoundedCornerShape(6.dp))
+                                    .padding(vertical = 6.dp, horizontal = 8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text("STAGE 1", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                    Text("Ambulance → Patient", fontSize = 10.sp, color = Color.White.copy(alpha = 0.9f))
+                                }
+                            }
+
+                            Text(" ▶ ", color = Color.Gray, fontSize = 12.sp)
+
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .background(stage2Color, RoundedCornerShape(6.dp))
+                                    .padding(vertical = 6.dp, horizontal = 8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text("STAGE 2", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                    Text("Patient → Hospital", fontSize = 10.sp, color = Color.White.copy(alpha = 0.9f))
+                                }
+                            }
+                        }
+                    }
+
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
                     // Navigation to Patient & Hospital (Google Maps Live Traffic)
@@ -451,11 +496,25 @@ private fun ActiveEmergencyMapView(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    var mapLoaded by remember { mutableStateOf(false) }
+    var mapLoadTimedOut by remember { mutableStateOf(false) }
+
+    LaunchedEffect(mapLoaded) {
+        if (!mapLoaded) {
+            kotlinx.coroutines.delay(15_000)
+            if (!mapLoaded) mapLoadTimedOut = true
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF1A237E))) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
-            uiSettings = MapUiSettings(zoomControlsEnabled = true, compassEnabled = true)
+            uiSettings = MapUiSettings(zoomControlsEnabled = true, compassEnabled = true),
+            onMapLoaded = {
+                mapLoaded = true
+                mapLoadTimedOut = false
+            }
         ) {
             Marker(
                 state = MarkerState(position = patientLatLng),
@@ -482,6 +541,32 @@ private fun ActiveEmergencyMapView(
                 }
             }
             Polyline(points = polylinePoints, color = Color(0xFF1565C0), width = 14f)
+        }
+
+        if (mapLoadTimedOut) {
+            com.example.smartambulance.ui.components.OpenStreetMapWebView(
+                patientLat = emergency.latitude,
+                patientLng = emergency.longitude,
+                patientName = emergency.patientName,
+                driverLat = driverLat,
+                driverLng = driverLng,
+                driverName = emergency.driverName ?: "Your Ambulance",
+                driverSpeed = currentSpeed.toDouble(),
+                hospitalLat = emergency.hospitalLatitude,
+                hospitalLng = emergency.hospitalLongitude,
+                hospitalName = emergency.hospitalName ?: "Hospital"
+            )
+        } else if (!mapLoaded) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color(0xFF1A237E).copy(alpha = 0.85f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(16.dp)) {
+                    CircularProgressIndicator(color = Color.White)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Initializing Maps...", color = Color.White, fontSize = 13.sp)
+                }
+            }
         }
 
         // Navigation header card

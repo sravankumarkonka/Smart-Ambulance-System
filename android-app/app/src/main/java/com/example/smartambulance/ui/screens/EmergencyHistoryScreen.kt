@@ -28,6 +28,7 @@ fun EmergencyHistoryScreen(
     onNavigate: (Any) -> Unit,
     viewModel: UserViewModel = hiltViewModel()
 ) {
+    val activeEmergencies by viewModel.activeEmergencies.collectAsStateWithLifecycle()
     val history by viewModel.history.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -50,14 +51,16 @@ fun EmergencyHistoryScreen(
             )
         }
     ) { paddingValues ->
-        if (history.isEmpty()) {
+        val hasAny = activeEmergencies.isNotEmpty() || history.isNotEmpty()
+
+        if (!hasAny) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No past emergency records found.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("No emergency records found.", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             LazyColumn(
@@ -67,101 +70,215 @@ fun EmergencyHistoryScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(history) { emergency ->
-                    val severityColor = when (emergency.severityLevel.lowercase()) {
-                        "critical" -> Color(0xFFC62828)
-                        "high" -> Color(0xFFEF5350)
-                        "medium" -> Color(0xFFF57C00)
-                        else -> Color(0xFF2E7D32)
+                // ── Active Emergencies Section ────────────────────────────
+                if (activeEmergencies.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = "🔴 Active Emergencies (${activeEmergencies.size})",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 17.sp,
+                            color = Color(0xFFC62828)
+                        )
                     }
 
-                    val isActive = com.example.smartambulance.data.model.isStatusActive(emergency.status)
-                    val isTrackable = emergency.id != null && isActive
+                    items(activeEmergencies) { emergency ->
+                        ActiveEmergencyCard(emergency = emergency, onNavigate = onNavigate)
+                    }
 
-                    Card(
-                        onClick = {
-                            if (isTrackable && emergency.id != null) {
-                                onNavigate(TrackAmbulance(emergency.id))
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (isActive) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surfaceVariant
+                    item {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            color = MaterialTheme.colorScheme.outlineVariant
                         )
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Type: ${emergency.emergencyType.uppercase()}",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 15.sp
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .background(severityColor, shape = RoundedCornerShape(4.dp))
-                                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                                ) {
-                                    Text(
-                                        text = emergency.severityLevel.uppercase(),
-                                        color = Color.White,
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
-
-                            Text("Patient: ${emergency.patientName}", fontSize = 14.sp)
-                            Text("Description: ${emergency.description}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            
-                            emergency.hospitalName?.let {
-                                Text("Hospital: $it", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
-                            }
-                            
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                val statusColor = when {
-                                    emergency.status.equals("completed", true) -> Color(0xFF2E7D32)
-                                    emergency.status.equals("cancelled", true) || emergency.status.equals("canceled", true) -> Color(0xFFC62828)
-                                    isActive -> Color(0xFF1565C0)
-                                    else -> Color.Gray
-                                }
-
-                                Text(
-                                    text = "Status: ${emergency.status.replace("_", " ").uppercase()}",
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 12.sp,
-                                    color = statusColor
-                                )
-                                Text(
-                                    text = emergency.createdAt?.take(16)?.replace("T", " ") ?: "",
-                                    fontSize = 11.sp,
-                                    color = Color.Gray
-                                )
-                            }
-
-                            if (isTrackable) {
-                                Button(
-                                    onClick = { emergency.id?.let { id -> onNavigate(TrackAmbulance(id)) } },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 4.dp),
-                                    shape = RoundedCornerShape(6.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                                ) {
-                                    Text("TRACK EMERGENCY", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                }
-                            }
-                        }
                     }
                 }
+
+                // ── Past Emergencies Section ──────────────────────────────
+                if (history.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = "Past Emergencies (${history.size})",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 17.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    items(history) { emergency ->
+                        HistoryEmergencyCard(emergency = emergency)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ActiveEmergencyCard(
+    emergency: com.example.smartambulance.data.model.Emergency,
+    onNavigate: (Any) -> Unit
+) {
+    val severityColor = when (emergency.severityLevel.lowercase()) {
+        "critical" -> Color(0xFFC62828)
+        "high" -> Color(0xFFEF5350)
+        "medium" -> Color(0xFFF57C00)
+        else -> Color(0xFF2E7D32)
+    }
+
+    Card(
+        onClick = {
+            emergency.id?.let { id -> onNavigate(TrackAmbulance(id)) }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Type: ${emergency.emergencyType.uppercase()}",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp
+                )
+                Box(
+                    modifier = Modifier
+                        .background(severityColor, shape = RoundedCornerShape(4.dp))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = emergency.severityLevel.uppercase(),
+                        color = Color.White,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Text("Patient: ${emergency.patientName}", fontSize = 14.sp)
+            Text("Description: ${emergency.description}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+            emergency.hospitalName?.let {
+                Text("Hospital: $it", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Status: ${emergency.status.replace("_", " ").uppercase()}",
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 12.sp,
+                    color = Color(0xFF1565C0)
+                )
+                Text(
+                    text = emergency.createdAt?.take(16)?.replace("T", " ") ?: "",
+                    fontSize = 11.sp,
+                    color = Color.Gray
+                )
+            }
+
+            if (!emergency.driverName.isNullOrBlank()) {
+                Text(
+                    text = "Driver: ${emergency.driverName}",
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+
+            Button(
+                onClick = { emergency.id?.let { id -> onNavigate(TrackAmbulance(id)) } },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                shape = RoundedCornerShape(6.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text("TRACK EMERGENCY", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+@Composable
+private fun HistoryEmergencyCard(
+    emergency: com.example.smartambulance.data.model.Emergency
+) {
+    val severityColor = when (emergency.severityLevel.lowercase()) {
+        "critical" -> Color(0xFFC62828)
+        "high" -> Color(0xFFEF5350)
+        "medium" -> Color(0xFFF57C00)
+        else -> Color(0xFF2E7D32)
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Type: ${emergency.emergencyType.uppercase()}",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp
+                )
+                Box(
+                    modifier = Modifier
+                        .background(severityColor, shape = RoundedCornerShape(4.dp))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = emergency.severityLevel.uppercase(),
+                        color = Color.White,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Text("Patient: ${emergency.patientName}", fontSize = 14.sp)
+            Text("Description: ${emergency.description}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+            emergency.hospitalName?.let {
+                Text("Hospital: $it", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val statusColor = when {
+                    emergency.status.equals("completed", true) -> Color(0xFF2E7D32)
+                    emergency.status.equals("cancelled", true) || emergency.status.equals("canceled", true) -> Color(0xFFC62828)
+                    else -> Color.Gray
+                }
+
+                Text(
+                    text = "Status: ${emergency.status.replace("_", " ").uppercase()}",
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 12.sp,
+                    color = statusColor
+                )
+                Text(
+                    text = emergency.createdAt?.take(16)?.replace("T", " ") ?: "",
+                    fontSize = 11.sp,
+                    color = Color.Gray
+                )
             }
         }
     }
